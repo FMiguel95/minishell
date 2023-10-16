@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/05 22:09:00 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/16 22:29:04 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ int	exit_status;
 void	handle_sigint(int signal)
 {
 	exit_status = 130;
+	rl_replace_line("", 0);
 	write(1, "\n", 1);
-	rl_replace_line("", 0);	
 	rl_on_new_line();
 	rl_redisplay();
 }
@@ -45,22 +45,23 @@ int	fork1(void)
 	return(pid);
 }
 
-int	main(int ac, char **av, char **env)
+int	main(int ac, char **av, char **envp)
 {
 	char	*input;
+	char	**tokens;
 	char	current_dir[1024];
 	int		pid;
 
 
 	wait_signal();
 	getcwd(current_dir, sizeof(current_dir));
+	// handle_sigint(SIGINT);
 	while (1)
 	{
-		
-		input = readline("\033[1;37mminis\033[31;5mhell\033[0m> ");
+		input = readline("\001\e[1;37m\002minis\001\e[31;5m\002hell\001\e[0m\002> ");
 		if (!input)
 			break ;
-		if (ft_strcmp(input, "") == 0)
+		if (input[0] == '\0')
 		{
 			free(input);
 			continue ;
@@ -69,15 +70,16 @@ int	main(int ac, char **av, char **env)
 
 
 
-		make_token_list(input);
-
-		if (fork1() == 0)
-			execute_node(build_tree(input));
-		wait(0);
+		tokens = make_token_list(input);
 		free(input);
 
+		if (!(pid = fork1()))
+			execute_node(build_tree(tokens), envp);
+		waitpid(pid, &exit_status, 0);
+
+		free_split(tokens);
 	}
+	rl_clear_history();
 	printf("🔥exit🔥\n");
-	clear_history();
 	return (EXIT_SUCCESS);
 }

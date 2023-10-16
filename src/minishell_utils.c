@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 19:38:14 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/03 21:59:49 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/11 18:44:57 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,15 +129,4 @@ t_tnode *nulterminate(t_tnode *node)
 		nulterminate(pipe_node->branch_right);
 	}
 	return (node);
-}
-
-
-void print_list(char **list)
-{
-	int i = 0;
-	while (list[i] != NULL)
-	{
-		printf("%s\n", list[i]);
-		i++;
-	}
 }

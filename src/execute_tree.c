@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/03 22:10:41 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/16 22:58:51 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,23 +34,36 @@ static char	*get_full_path(char *command)
 	return (ret);
 }
 
-static void	execute_command(char **args)
+static void	execute_command(char **args, char **envp)
 {
 	char	*full_path;
 
-	full_path = get_full_path(args[0]);
-	if (full_path == NULL)
+	if (ft_strchr(args[0], '/'))
 	{
-		dprintf(2, "%s: command not found\n", args[0]);
-		exit(0);
+		full_path = args[0];
+		if (access(full_path, X_OK) != 0)
+		{
+			perror(full_path);
+			exit(1);	// check if correct
+		}
 	}
-	execve(full_path, args, NULL);
+	else
+	{
+		full_path = get_full_path(args[0]);
+		if (full_path == NULL)
+		{
+			dprintf(2, "%s: command not found\n", args[0]);
+			exit(1);	// check if correct
+		}
+	}
+	execve(full_path, args, envp);
 	dprintf(2, "exec %s failed :(\n", args[0]);
 	free(full_path);
 }
 
-void	execute_node(t_tnode *node)
+void	execute_node(t_tnode *node, char** envp)
 {
+	int pid;
 	int	p[2];
 	t_tnode_exec	*exec_node;
 	t_tnode_pipe	*pipe_node;
@@ -61,13 +74,14 @@ void	execute_node(t_tnode *node)
 		panic("null node");
 	if (node->type == EXEC)
 	{
-		if (fork1() == 0)
+		if (!(pid = fork1()))
 		{
 			exec_node = (t_tnode_exec*)node;
 			if (exec_node->argv[0] == 0)
 				exit(1);
-			execute_command(exec_node->argv);
+			execute_command(exec_node->argv, envp);
 		}
+		waitpid(pid, 0, 0);
 	}
 	else if (node->type == REDIR)
 	{
@@ -78,7 +92,7 @@ void	execute_node(t_tnode *node)
 			perror(redir_node->file);
 			exit(1);
 		}
-		execute_node(redir_node->node);
+		execute_node(redir_node->node, envp);
 	}
 	else if (node->type == PIPE)
 	{
@@ -90,14 +104,14 @@ void	execute_node(t_tnode *node)
 			dup2(p[1], STDOUT_FILENO);
 			close(p[1]);
 			close(p[0]);
-			execute_node(pipe_node->branch_left);
+			execute_node(pipe_node->branch_left, envp);
 		}
 		if (fork1() == 0)
 		{
 			close(p[1]);
 			dup2(p[0], STDIN_FILENO);
 			close(p[0]);
-			execute_node(pipe_node->branch_right);
+			execute_node(pipe_node->branch_right, envp);
 		}
 		close(p[0]);
 		close(p[1]);
@@ -127,7 +141,7 @@ void	execute_node(t_tnode *node)
 		// 	free(temp);
 		// }
 		// ft_putstr_fd(text, STDIN_FILENO);
-		execute_node(heredoc_node->node);
+		execute_node(heredoc_node->node, envp);
 	}
 	else
 		panic("invalid node type");
