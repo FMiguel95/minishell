@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/16 22:58:51 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/18 17:47:49 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,27 +121,27 @@ void	execute_node(t_tnode *node, char** envp)
 	else if (node->type == HEREDOC)
 	{
 		heredoc_node = (t_tnode_heredoc*)node;
-		
-		// char *text = ft_calloc(1, 1);
-		// char *temp;
-		// char *line = NULL;
-		// char *limiter = heredoc_node->delm_start;
-		// while (1)
-		// {
-		// 	line = readline("heredoc> ");
-		// 	if (!line || ft_strcmp(line, limiter) == 0)
-		// 	{
-		// 		free(line);
-		// 		break ;
-		// 	}
-		// 	temp = ft_strjoin(text, line);
-		// 	free(text);
-		// 	free(line);
-		// 	text = ft_strjoin(temp, "\n");
-		// 	free(temp);
-		// }
-		// ft_putstr_fd(text, STDIN_FILENO);
+		char *line;
+
+		int fd_temp = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		while (1)
+		{
+			line = readline("heredoc> ");
+			if (!line || ft_strcmp(line, heredoc_node->delm_start) == 0)
+			{
+				if (line)
+					free(line);
+				break ;
+			}
+			ft_putstr_fd(line, fd_temp);
+			ft_putstr_fd("\n", fd_temp);
+		}
+		close(fd_temp);
+
+		close(STDIN_FILENO);
+		fd_temp = open(".heredoc", O_RDONLY, 0400);
 		execute_node(heredoc_node->node, envp);
+		unlink(".heredoc");
 	}
 	else
 		panic("invalid node type");

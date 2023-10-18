@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 18:55:28 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/12 20:16:50 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/17 20:24:16 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ t_tnode	*construct_redir(t_tnode *subnode, char *file, char *efile, int flags, i
 	node->type = REDIR;
 	node->node = subnode;
 	node->file = file;
-	node->efile = efile;
 	node->flags = flags;
 	node->fd = fd;
 	return ((t_tnode *)node);

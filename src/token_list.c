@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 21:28:15 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/16 22:26:53 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/18 18:09:44 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,29 @@ static char	*handle_quotes_str(char *token)
 	sub_start = 0;
 	while (token[i])
 	{
+		if (token[i] == '$' && quote_type != '\'')	// expand variables (it found a $ char and it's not inside a ' quote block)
+		{
+			// add to the str what came before
+			substr = ft_substr(token, sub_start, i - sub_start);
+			temp = ft_strjoin(new_str, substr);
+			free(new_str);
+			free(substr);
+			new_str = temp;
+			sub_start = i + 1; // mark the start of the variable name
+			// lets advance until the end of the variable name (until it finds a space, quote, or the token ends)
+			while (token[i] && !ft_isspace(token[i]) && token[i] != '\'' && token[i] != '\"')
+				i++;
+			// create a char* with just the variable name
+			substr = ft_calloc(i - sub_start + 1, 1);
+			ft_strlcat(substr, token + sub_start, i - sub_start + 1);
+			// get the variable value with getenv and add it to the str
+			temp = ft_strjoin(new_str, getenv(substr));
+			free(new_str);
+			free(substr);
+			new_str = temp;
+			sub_start = i;
+			continue ;
+		}
 		if ((!quote_type && (token[i] == '\"' || token[i] == '\'')) || token[i] == quote_type)
 		{
 			substr = ft_substr(token, sub_start, i - sub_start);
@@ -144,9 +167,13 @@ static char	*handle_quotes_str(char *token)
 
 static void	handle_quotes(char **token_list)
 {
+	char	*temp;
+
 	while (*token_list)
 	{
-		*token_list = handle_quotes_str(*token_list);
+		temp = *token_list;
+		*token_list = handle_quotes_str(temp);
+		free(temp);
 		token_list++;
 	}
 }

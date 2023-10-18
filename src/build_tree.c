@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 19:34:11 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/11 20:48:26 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/17 20:09:01 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,8 @@ t_tnode	*parse_exec(char ***tokens)
 
 char	get_token_type(char *token)
 {
+	if (!token)
+		return ('\0');
 	if (strcmp(token, "<") == 0)
 		return ('<');
 	else if (strcmp(token, ">") == 0)
@@ -151,7 +153,7 @@ t_tnode	*parse_redir(t_tnode *node, char ***tokens)
 			node = construct_redir(node, **tokens, NULL, O_WRONLY | O_CREAT | O_TRUNC, STDOUT_FILENO);
 		else if (token_type == '+')
 			node = construct_redir(node, **tokens, NULL, O_CREAT | O_WRONLY | O_APPEND, STDOUT_FILENO);
-		else if (token_type == '-') // heredoc stuff
+		else if (token_type == '-')
 			node = construct_heredoc(node, **tokens, NULL);
 			// panic("heredoc TBA"); // maybe change to its own parse_heredoc :think:
 		(*tokens)++;

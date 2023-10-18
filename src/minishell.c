@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/16 22:29:04 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/17 20:43:35 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,10 @@ int	main(int ac, char **av, char **envp)
 		free(input);
 
 		if (!(pid = fork1()))
+		{
 			execute_node(build_tree(tokens), envp);
+			exit(0);
+		}
 		waitpid(pid, &exit_status, 0);
 
 		free_split(tokens);
