@@ -9,46 +9,78 @@ int	exit_status;
 
 int	is_option(char *str)
 {
+	char	letter = str[1];
+	
 	if (!str)
 		return (0);
 	if (*str == '-')
 	{
-		while (*(++str) == 'n')
-			;
-//		printf("%c\n", *str);
-		if (!*str)	
-			return (write(1, "option -n\n", 10));
-		else
-			return (write(1, "option other than -n\n", 21));
+		
+		if (*(++str) != '-' && *str != '\0')   // ver se a segunda condicao faz sentido, acho que sim
+			return (letter);
 	}
 	return (0);
-	
+}
+/*
+void	ft_putstr_fd(char *s, int fd)
+{
+	int	i;
+
+	i = 0;
+	if (!s || fd < 0)
+		return ;
+	while (s[i])
+	{
+		write(fd, &s[i], 1);
+		i++;
+	}
+	return ;
+}
+
+
+int	ft_perror(char *str, char letter)
+{
+		write(2, "bash: ", 6);
+		write(2, &str, strlen(str));
+		write(2, ": -", 3);
+		write(2, &letter, 1);
+		write(2, ": invalid option\n", 17);	
+		write(2, &str, strlen(str));
+		write(2, ": usage: ", 9);
+		write(2, &str, strlen(str));
+		if (!ft_compare())
+			write(2, ": usage: pwd\n", strlen(": invalid option\npwd: usage: pwd\n"));
+		write(2, ": usage: pwd\n", strlen(": invalid option\npwd: usage: pwd\n"));
+		// cannot use strlen()
+		exit_status = 2;
+		exit (exit_status);	// talvez seja melhor usar um perror o exit vai ser 1????
+}
+
+*/
+int	perror_pwd(char letter)
+{
+		write(2, "bash: pwd: -", 12);
+		write(2, &letter, 1);
+		write(2, ": invalid option\npwd: usage: pwd\n", strlen(": invalid option\npwd: usage: pwd\n"));	// cannot use strlen()
+		exit_status = 2;
+		exit (exit_status);	// talvez seja melhor usar um perror o exit vai ser 1????
 }
 
 void	pwd_buildin(int argc, char **argv, char **env_copy)
 {
-	/*function just to confirm how long the array can hold	 
-	  stackoverflow question 9449241 where is PATH_MAX defined in Linux
-	printf("max char that a path can hold: %d\n", PATH_MAX);*/
-
+	(void)env_copy;
+	(void)argc;
 	char	curr_work_dir[PATH_MAX];
-
+	int	i = 1;
 	
-	while (*argv)
-		if(is_option(*(++argv)))			// a test number, it will be changed to 1 in original minishell ; pwd only accepts options man page, any other argument will be ignored
-		{
-			errno = EINVAL;		// assign the error number 22 ( other possibility - E2BIG 7 see link above about ARG_MAX)for perror function()  on CLI run errno -l to see all the errors list; I would prefer too many arguments error but not implemented
-			perror("minishell buildin specific");	// print the errono with a personal message also
-			exit_status = 2;	// find the best exit status number  https://www.baeldung.com/linux/standard-error-eodes#:~:text=This%20error%20code%20means%20that%20the%20argument%20passed,a%20valid%20and%20supported%20argument%20to%20the%20operation.
-			exit(exit_status);
-		}
+	if (is_option(argv[i]))
+		perror_pwd(is_option(argv[i]));
 	if(getcwd(curr_work_dir, PATH_MAX) == NULL) // man getpwd return value on failure NULL pointer and errno is set
 	{
 	/*use panic to print the error message
 	panic("pwd"); */
-		perror("pwd error:");	//just to check if the errno ATTENTION: errno and exit code DON'T match https://www.gnu.org/software/libc/manual/html_node/Exit-Status.html
-
-		exit_status = 2;  // https://tldp.org/LDP/abs/html/exitcodes.html   https://itsfoss.com/linux-exit-codes/
+		perror("pwd error:");
+		exit_status = 2;
 	}	
 	
 	else
