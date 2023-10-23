@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/05 22:08:23 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/23 19:44:29 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ typedef struct s_tnode_exec{
 typedef struct s_tnode_redir{
 	int		type;
 	char	*file;
-	char	*efile;
 	int		flags;
 	int		fd;
 	t_tnode	*node;
@@ -63,34 +62,36 @@ typedef struct s_tnode_redir{
 
 typedef struct s_tnode_heredoc{
 	int		type;
-	char	*delm_start;
-	char	*delm_end;
+	char	*delm;
 	t_tnode	*node;
 }			t_tnode_heredoc;
 
+typedef struct s_token{
+	char	*token;
+	int		is_operator;
+}			t_token;
 
 t_tnode	*construct_exec(void);
-t_tnode	*construct_redir(t_tnode *subnode, char *file, char *efile, int flags, int fd);
+t_tnode	*construct_redir(t_tnode *subnode, char *file, int flags, int fd);
 t_tnode	*construct_pipe(t_tnode *left, t_tnode *right);
-t_tnode	*construct_heredoc(t_tnode *subnode, char *delm_start, char *delm_end);
+t_tnode	*construct_heredoc(t_tnode *subnode, char *delm);
 
-int		peek(char **token_start, char *token_end, char *tokens);
-char	get_token(char **token_start, char *token_end, char **q, char **eq);
-t_tnode	*nulterminate(t_tnode *node);
-
-t_tnode	*parse_redir(t_tnode *node, char **token_start, char *token_end);
-t_tnode	*parse_exec(char **token_start, char *token_end);
-t_tnode	*parse_pipe(char **token_start, char *token_end);
-t_tnode *build_tree(char *input);
+t_tnode	*parse_redir(t_tnode *node, char ***tokens);
+t_tnode	*parse_exec(char ***tokens);
+t_tnode	*parse_pipe(char ***tokens);
+char	get_token_type(char *token);
+t_tnode *build_tree(char **tokens);
 
 void	panic(char *str);
 int		fork1();
 void	handle_sigint(int signal);
 void	wait_signal(void);
-void	execute_node(t_tnode *node);
-
+void	execute_node(t_tnode *node, char **envp);
+void	free_node(t_tnode *node);
 
 char	**make_token_list(char *input);
+
+
 void 	print_list(char **list);
 
 #endif
