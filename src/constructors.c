@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 18:55:28 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/17 20:24:16 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/23 16:40:36 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ t_tnode	*construct_exec(void)
 	return ((t_tnode *)node);
 }
 
-t_tnode	*construct_redir(t_tnode *subnode, char *file, char *efile, int flags, int fd)
+t_tnode	*construct_redir(t_tnode *subnode, char *file, int flags, int fd)
 {
 	t_tnode_redir	*node;
 
@@ -45,7 +45,7 @@ t_tnode	*construct_redir(t_tnode *subnode, char *file, char *efile, int flags, i
 	return ((t_tnode *)node);
 }
 
-t_tnode	*construct_heredoc(t_tnode *subnode, char *delm_start, char *delm_end)
+t_tnode	*construct_heredoc(t_tnode *subnode, char *delm)
 {
 	t_tnode_heredoc	*node;
 
@@ -55,8 +55,7 @@ t_tnode	*construct_heredoc(t_tnode *subnode, char *delm_start, char *delm_end)
 	ft_bzero(node, sizeof(node));
 	node->type = HEREDOC;
 	node->node = subnode;
-	node->delm_start = delm_start;
-	node->delm_end = delm_end;
+	node->delm = delm;
 	return ((t_tnode *)node);
 }
 

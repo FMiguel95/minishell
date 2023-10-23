@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/17 20:43:35 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:00:32 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,17 @@ int	fork1(void)
 	return(pid);
 }
 
+// TODO : check your fucking pipes
+
 int	main(int ac, char **av, char **envp)
 {
 	char	*input;
 	char	**tokens;
-	char	current_dir[1024];
+	t_tnode	*tree_root;
 	int		pid;
 
 
 	wait_signal();
-	getcwd(current_dir, sizeof(current_dir));
-	// handle_sigint(SIGINT);
 	while (1)
 	{
 		input = readline("\001\e[1;37m\002minis\001\e[31;5m\002hell\001\e[0m\002> ");
@@ -69,18 +69,19 @@ int	main(int ac, char **av, char **envp)
 		add_history(input);
 
 
-
-		tokens = make_token_list(input);
-		free(input);
-
 		if (!(pid = fork1()))
 		{
-			execute_node(build_tree(tokens), envp);
+			tokens = make_token_list(input);
+			tree_root = build_tree(tokens);
+			execute_node(tree_root, envp);
+			// ft_putstr_fd("finished execution\n", 2);
+			free(input);
+			free_split(tokens);
+			free_node(tree_root);
 			exit(0);
 		}
 		waitpid(pid, &exit_status, 0);
-
-		free_split(tokens);
+		free(input);
 	}
 	rl_clear_history();
 	printf("🔥exit🔥\n");
