@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/23 20:00:32 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:56:47 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	fork1(void)
 	return(pid);
 }
 
-// TODO : check your fucking pipes
+// TODO: fix heredocs with pipes, heredocs with redirects leaks
 
 int	main(int ac, char **av, char **envp)
 {
@@ -73,8 +73,8 @@ int	main(int ac, char **av, char **envp)
 		{
 			tokens = make_token_list(input);
 			tree_root = build_tree(tokens);
+			//print_node(tree_root);
 			execute_node(tree_root, envp);
-			// ft_putstr_fd("finished execution\n", 2);
 			free(input);
 			free_split(tokens);
 			free_node(tree_root);

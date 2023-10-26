@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 21:28:15 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/23 19:44:23 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/25 22:49:15 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,26 @@ static int	count_tokens(char *input)
 	i = 0;
 	while (input[i])
 	{
-		if (input[i] != ' ' && input[i] != '\t')
+		if (input[i] != ' ' && input[i] != '\t')	// if its a space then start new token
 		{
 			count++;
-			if (input[i] == '|' || input[i] == '<' || input[i] == '>')
+			if (input[i] == '|' || input[i] == '<' || input[i] == '>')	// if the start of the token is an operator then leave
 			{
-				if (input[i + 1] && (input[i] == '<' || input[i] == '>') && input[i] == input[i + 1])
+				if (input[i + 1] && (input[i] == '<' || input[i] == '>') && input[i] == input[i + 1])	// check if the operator is double length
 					i++;
 				i++;
 				continue ;
 			}
 			quote_type = 0;
-			while (input[i] && !is_delimiter(input[i]))
+			while (input[i] && !is_delimiter(input[i]))	// iterate until the end of the token
 			{
-				if (input[i] == '\"' || input[i] == '\'')
+				if (input[i] == '\"' || input[i] == '\'')	// if quotes are found, iterate until end of quotes
 				{
 					quote_type = input[i];
 					i++;
 					while (input[i] && input[i] != quote_type)
 						i++;
+					continue ;
 				}
 				i++;
 			}
@@ -94,6 +95,7 @@ static void	fill_list(char **token_list, char *input)
 					i++;
 					while (input[i] && input[i] != quote_type)
 						i++;
+					continue ;
 				}
 				i++;
 			}

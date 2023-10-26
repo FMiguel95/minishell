@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 19:34:11 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/23 17:12:01 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/25 22:51:53 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,25 +28,45 @@ t_tnode	*parse_pipe(char ***tokens)
 
 t_tnode	*parse_exec(char ***tokens)
 {
-	char	*q, *eq;
-	char	token;
-	int		argc;
-	t_tnode_exec *node;
-	t_tnode *ret_node;
+	int				argc;
+	t_tnode_exec	*node;
+	t_tnode 		*ret_node;
+	t_tnode 		*newest_node;
+	t_tnode 		*prev_node;
+	t_tnode 		*exec_node;
 
-	ret_node = construct_exec();
+	exec_node = construct_exec();
+	ret_node = exec_node;
 	node = (t_tnode_exec*)ret_node;
 
 	argc = 0;
-	ret_node = parse_redir(ret_node, tokens);
+	// ret_node = parse_redir(ret_node, tokens);
 	while (**tokens != NULL && ft_strcmp(**tokens, "|") != 0)
 	{
 		if (get_token_type(**tokens) != 'a')
-			panic("syntax ??");
+		{
+			if (ret_node->type == EXEC)
+			{
+				ret_node = parse_redir(exec_node, tokens);
+				prev_node = ret_node;
+				continue ;
+			}
+			newest_node = parse_redir(exec_node, tokens);
+			if (prev_node->type == REDIR)
+				((t_tnode_redir *)prev_node)->node = newest_node;
+			else if (prev_node->type == HEREDOC)
+				((t_tnode_heredoc *)prev_node)->node = newest_node;
+			prev_node = newest_node;
+			continue ;
+		}
+		// while (**tokens != NULL && get_token_type(**tokens) != 'a' && get_token_type(**tokens) != '|')
+		// 	ret_node = parse_redir(ret_node, tokens);
+		// if (get_token_type(**tokens) != 'a')
+		// 	panic("syntax ??");
 		node->argv[argc] = **tokens;
 		argc++;
 		(*tokens)++;
-		ret_node = parse_redir(ret_node, tokens);
+		// ret_node = parse_redir(ret_node, tokens);
 	}
 	node->argv[argc] = NULL;
 	node->eargv[argc] = NULL;
