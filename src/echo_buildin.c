@@ -17,7 +17,7 @@ run	./a.out echo -n	// our minishell only works with the -n option, all other ar
 
 */
 
-int	exit_status; // in the original will be a global variable
+extern int	exit_status; // in the original will be a global variable
 
 int	is_option(char *str)
 {
@@ -25,6 +25,8 @@ int	is_option(char *str)
 		return (0);
 	if (*str == '-')
 	{
+		if (*(str +1) == '\0')
+			return (0);
 		while (*(++str) == 'n')
 			;
 //		printf("%c\n", *str);
@@ -35,11 +37,13 @@ int	is_option(char *str)
 	
 }
 
-void	echo_buildin(int argc, char **argv, char **env_copy)
+void	echo_buildin(char **argv)
 {
-	int	i = 2;			// index variable to goes through the arrays of pointers of each argument string pointer 
-	int	flag_n_option = 0;
+	int	i;
+	int	flag_n_option;
 
+	i = 1;
+	flag_n_option = 0;
 	while (is_option(argv[i]) == 10)
 	{
 		if (is_option(argv[i]) == 10)
@@ -56,6 +60,8 @@ void	echo_buildin(int argc, char **argv, char **env_copy)
 	if (!flag_n_option)
 		printf("\n");
 	exit_status = EXIT_SUCCESS;
+	//printf("[echo end]");
+	exit(exit_status);
 }
 
 /*
@@ -109,10 +115,12 @@ void	echo_buildin(int argc, char **argv, char **env_copy)
 	exit_status = EXIT_SUCCESS;
 }
 */
-int	main(int argc, char **argv, char **envp) // not all OS allow to use envp. it is null terminated containing the envvariomental variables as string or we can use the external variable environ
-{
-	echo_buildin(argc, argv, envp);
-//	it will never give error since is nullterminated and will give null at the worst case cenario
-	return 0;	// in the original function no need to return it will be void
-}
+// int	main(int argc, char **argv, char **envp) // not all OS allow to use envp. it is null terminated containing the envvariomental variables as string or we can use the external variable environ
+// {
+// 	(void)argc;
+// 	(void)envp;
+// 	echo_buildin(argv);
+// //	it will never give error since is nullterminated and will give null at the worst case cenario
+// 	return 0;	// in the original function no need to return it will be void
+// }
 

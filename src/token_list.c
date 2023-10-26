@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 21:28:15 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/25 22:49:15 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/26 18:54:08 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,9 +191,9 @@ char	**make_token_list(char *input)
 		panic("token allocation error");
 	token_list[token_count] = NULL;
 	fill_list(token_list, input);
-	// print_list(token_list);
+	//print_list(token_list);
 	handle_quotes(token_list);
-	// print_list(token_list);
+	//print_list(token_list);
 	return (token_list);
 }
 

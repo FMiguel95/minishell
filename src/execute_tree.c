@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/25 22:52:54 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/26 20:08:29 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ static void	execute_command(char **args, char **envp)
 {
 	char	*full_path;
 
+	execute_builtin(args, envp);
 	if (ft_strchr(args[0], '/'))
 	{
 		full_path = args[0];
@@ -70,7 +71,7 @@ static void	execute_command(char **args, char **envp)
 		panic("execve error");
 	// }
 	// wait(0);
-	free(full_path);
+	// free(full_path);
 	// free_split(args);
 }
 
