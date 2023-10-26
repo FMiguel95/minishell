@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/23 19:44:29 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/25 20:52:05 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ typedef struct s_tnode_heredoc{
 	int		type;
 	char	*delm;
 	t_tnode	*node;
+	int		is_done;
 }			t_tnode_heredoc;
 
 typedef struct s_token{
@@ -88,6 +89,7 @@ void	handle_sigint(int signal);
 void	wait_signal(void);
 void	execute_node(t_tnode *node, char **envp);
 void	free_node(t_tnode *node);
+void	print_node(t_tnode *node);
 
 char	**make_token_list(char *input);
 
