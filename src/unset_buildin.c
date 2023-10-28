@@ -66,14 +66,20 @@ int	ft_perror(char *str, char letter)
 		exit (exit_status);
 }
 
-int	extract_key_index(char *str)		
+size_t	key_length(char *str)		
 {
-	int	i = 0;
+	size_t	i = 0;
 	
+//	printf("strlen in keylen: %zu\n", strlen(str));
 	if (!str[i])
 		return (0); // confirm if is the correct one
-	while (str[i] != '=')
+	while (i < strlen(str))
+	{
+		if (str[i] == '=' || str[i] == ' ')
+			return (i);
 		i++;
+	}
+//	printf("saida do key_len: %zu \n", i);
 	return (i);
 }
 
@@ -101,11 +107,68 @@ int	find_key_env_index(char *argv, char **env, int index)
 	return (len_env);
 }
 
-void	unset_buildin(char **argv, char **env_copy)
+int	pointer_array_len(char **pointers)
+{
+	int	len = 0;
+
+	while (pointers[len])
+		len++;	
+//	printf("number of env var: %d\n", len);
+	return (len);
+}
+
+void	env_print(char **env)
+{
+	size_t	key_index = 0;
+	size_t	value_index = 0;
+	
+	while (env[key_index])
+	{
+		while (value_index < strlen(env[key_index]))
+			value_index++;
+		printf("%s\n", env[key_index]);
+		key_index++;	
+	}
+}
+
+char	**env_copy(char **env)
+{
+	char **copy;
+	size_t	key_index = 0;
+	size_t	value_index = 0;
+
+//	while (env[key_index])
+//		key_index++;
+	copy = (char**)malloc(sizeof(char*) * (pointer_array_len(env) + 2));
+	if (!copy)
+		return NULL;
+	copy[pointer_array_len(env) ] = '\0';
+	copy[pointer_array_len(env)  + 1] = '\0';
+//	key_index = 0;
+	while (env[key_index])
+	{
+		copy[key_index] = (char *)malloc(sizeof(char) * (strlen(env[key_index]) + 1));
+		if (!copy[key_index])
+			return NULL;
+		copy[key_index][strlen(env[key_index])] = '\0';
+		while (value_index < strlen(env[key_index]))
+		{
+			copy[key_index][value_index] = env[key_index][value_index] ;
+			value_index++;
+		}
+		value_index = 0;
+		key_index++;	
+	}
+//	printf("env_copy len: %d\n", pointer_array_len(env_copy));
+	return (copy);
+}
+
+char	**unset_buildin(char **argv, char **copy)
 {
 	int	i = 1; 
 	int	key_index = 0;
 	int	env_index = 0;
+	char	**new_copy;
 
 	if (is_option(argv[i]))
 		ft_perror(argv[i -1], is_option(argv[i]));
@@ -114,20 +177,23 @@ void	unset_buildin(char **argv, char **env_copy)
 	{
 		key_index = strlen(argv[i]);
 //		printf("index passed %d\n", key_index);
-		env_index = find_key_env_index(argv[i], env_copy, key_index);
+		env_index = find_key_env_index(argv[i], copy, key_index);
 //		printf("env_index %d\n", env_index);
 //		free(env_copy[env_index]);
-		while (env_copy[env_index])
+		while (copy[env_index])
 		{	
 //			printf("env[%d] %s", env_index, env_copy[env_index]);
-			env_copy[env_index] = env_copy[env_index + 1];
-			printf("env[%d] %s\n", env_index, env_copy[env_index]);
+			copy[env_index] = copy[env_index + 1];
+//			printf("env[%d] %s\n", env_index, copy[env_index]);
 			env_index++;
 		}
-		env_copy[env_index] = NULL;
+		copy[env_index] = NULL;
+		new_copy = env_copy(copy);
+//		free_split(copy);
 		i++;
 	}
 	exit_status = EXIT_SUCCESS;
+	return (new_copy);
 }
 
 
@@ -235,8 +301,11 @@ void	unset_buildin(int argc, char **argv, char **env_copy)
 int	main(int argc, char **argv, char **env)
 {
 	(void)argc;
+	char	**new_env;
 	
-	unset_buildin(argv, env);
+	new_env = unset_buildin(argv, env);
+	printf("\n\n\nbefor print env\n\n\n");
+	env_print(new_env);
 }
 
 
