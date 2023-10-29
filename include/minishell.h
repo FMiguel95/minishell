@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/26 19:37:49 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/29 13:57:21 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,12 +95,14 @@ void	print_node(t_tnode *node);
 
 char	**make_token_list(char *input);
 
-void	execute_builtin(char **argv, char **env_copy);
-int		ft_perror(char *str, char letter);
+char	**execute_builtin(char **argv, char **env_copy);
 void	pwd_buildin(char **argv);
 void	echo_buildin(char **argv);
 void	env_buildin(char **argv, char **env_copy);
+char	**unset_buildin(char **argv, char **copy);
 
+int		ft_perror(char *str, char letter);
+char	**env_copy(char **env);
 
 void 	print_list(char **list);
 
