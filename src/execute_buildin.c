@@ -118,7 +118,7 @@ static int	is_option_echo(char *str)
 
 // }
 
-void	execute_builtin(char **argv, char **env_copy)
+char	**execute_builtin(char **argv, char **env_copy)
 {
 	if (!ft_strcmp(argv[0], "echo"))
 		echo_buildin(argv);
@@ -128,14 +128,13 @@ void	execute_builtin(char **argv, char **env_copy)
 		pwd_buildin(argv);
 //	else if (!ft_strcmp(argv[1], "export"))
 //		export_buildin(argc, argv, env_copy);
-//	else if (!ft_strcmp(argv[1], "unset"))
-//		unset_buildin(argc, argv, env_copy);
+	else if (!ft_strcmp(argv[0], "unset"))
+		return (unset_buildin(argv, env_copy));
 //	else if (!ft_strcmp(argv[1], "cd"))
 //		cd_buildin(argc, argv, env_copy);
 //	else if (!ft_strcmp(argv[1], "exit"))
 //		exit_buildin(argc, argv, env_copy);
-	else
-		return ;
+	return (env_copy);
 }
 
 // int	main(int argc, char **argv, char **envp)

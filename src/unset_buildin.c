@@ -1,70 +1,72 @@
-#include <stdio.h>	// printf
-#include <stdlib.h>	// exit
-#include <errno.h>	// errno
-#include <unistd.h>	// write
-#include <string.h>	// strlen
+// #include <stdio.h>	// printf
+// #include <stdlib.h>	// exit
+// #include <errno.h>	// errno
+// #include <unistd.h>	// write
+// #include <string.h>	// strlen
 
-int	exit_status;
+#include "../include/minishell.h"
 
-void	ft_putstr_fd(char *s, int fd)
+extern int	exit_status;
+
+// void	ft_putstr_fd(char *s, int fd)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	if (!s || fd < 0)
+// 		return ;
+// 	while (s[i])
+// 	{
+// 		write(fd, &s[i], 1);
+// 		i++;
+// 	}
+// 	return ;
+// }
+
+// int	ft_strcmp(const char *s1, const char *s2)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
+// 	{
+// 		i++;
+// 	}
+// 	return (s1[i] - s2[i]);
+// }
+
+static int	is_option(char *str)
 {
-	int	i;
-
-	i = 0;
-	if (!s || fd < 0)
-		return ;
-	while (s[i])
-	{
-		write(fd, &s[i], 1);
-		i++;
-	}
-	return ;
-}
-
-int	ft_strcmp(const char *s1, const char *s2)
-{
-	int	i;
-
-	i = 0;
-	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
-	{
-		i++;
-	}
-	return (s1[i] - s2[i]);
-}
-
-int	is_option(char *str)
-{
-	char	letter = str[1];
 	
 	if (!str)
 		return (0);
-	if (*str == '-')	
+	char	letter = str[1];
+	if (*str == '-')
 		if (*(++str) != '-' && *str != '\0')   // ver se a segunda condicao faz sentido, acho que sim
 			return (letter);
 	return (0);
 }
 
-int	ft_perror(char *str, char letter)
-{
-		ft_putstr_fd("bash: ", 2);
-		ft_putstr_fd(str, 2);
-		ft_putstr_fd(": -", 2);
-		ft_putstr_fd(&letter, 2);
-		ft_putstr_fd(": invalid option\n", 2);	
-		ft_putstr_fd(str, 2);
-		ft_putstr_fd(": usage: ", 2);
-		ft_putstr_fd(str, 2);
-//		if (!ft_strcmp(str, "unset"))
-		if (!ft_strcmp(str, "./a.out"))
-			ft_putstr_fd("\n", 2);
-		if (!ft_strcmp(str, "unset"))
-			ft_putstr_fd("[name ...]\n", 2);
-		if (!ft_strcmp(str, "export"))
-			ft_putstr_fd("[name[=value] ...]\n", 2);
-		exit_status = 2;
-		exit (exit_status);
-}
+// static int	ft_perror(char *str, char letter)
+// {
+// 		ft_putstr_fd("bash: ", 2);
+// 		ft_putstr_fd(str, 2);
+// 		ft_putstr_fd(": -", 2);
+// 		ft_putstr_fd(&letter, 2);
+// 		ft_putstr_fd(": invalid option\n", 2);	
+// 		ft_putstr_fd(str, 2);
+// 		ft_putstr_fd(": usage: ", 2);
+// 		ft_putstr_fd(str, 2);
+// //		if (!ft_strcmp(str, "unset"))
+// 		if (!ft_strcmp(str, "./a.out"))
+// 			ft_putstr_fd("\n", 2);
+// 		if (!ft_strcmp(str, "unset"))
+// 			ft_putstr_fd("[name ...]\n", 2);
+// 		if (!ft_strcmp(str, "export"))
+// 			ft_putstr_fd("[name[=value] ...]\n", 2);
+// 		exit_status = 2;
+// 		exit (exit_status);
+// }
 
 size_t	key_length(char *str)		
 {
@@ -73,7 +75,7 @@ size_t	key_length(char *str)
 //	printf("strlen in keylen: %zu\n", strlen(str));
 	if (!str[i])
 		return (0); // confirm if is the correct one
-	while (i < strlen(str))
+	while (i < ft_strlen(str))
 	{
 		if (str[i] == '=' || str[i] == ' ')
 			return (i);
@@ -124,7 +126,7 @@ void	env_print(char **env)
 	
 	while (env[key_index])
 	{
-		while (value_index < strlen(env[key_index]))
+		while (value_index < ft_strlen(env[key_index]))
 			value_index++;
 		printf("%s\n", env[key_index]);
 		key_index++;	
@@ -142,16 +144,16 @@ char	**env_copy(char **env)
 	copy = (char**)malloc(sizeof(char*) * (pointer_array_len(env) + 2));
 	if (!copy)
 		return NULL;
-	copy[pointer_array_len(env) ] = '\0';
-	copy[pointer_array_len(env)  + 1] = '\0';
+	copy[pointer_array_len(env) ] = NULL;
+	copy[pointer_array_len(env)  + 1] = NULL;
 //	key_index = 0;
 	while (env[key_index])
 	{
-		copy[key_index] = (char *)malloc(sizeof(char) * (strlen(env[key_index]) + 1));
+		copy[key_index] = (char *)malloc(sizeof(char) * (ft_strlen(env[key_index]) + 1));
 		if (!copy[key_index])
 			return NULL;
-		copy[key_index][strlen(env[key_index])] = '\0';
-		while (value_index < strlen(env[key_index]))
+		copy[key_index][ft_strlen(env[key_index])] = '\0';
+		while (value_index < ft_strlen(env[key_index]))
 		{
 			copy[key_index][value_index] = env[key_index][value_index] ;
 			value_index++;
@@ -165,11 +167,14 @@ char	**env_copy(char **env)
 
 char	**unset_buildin(char **argv, char **copy)
 {
+	printf("unset_buildin\n");
 	int	i = 1; 
 	int	key_index = 0;
 	int	env_index = 0;
 	char	**new_copy;
 
+	if (!argv[1])
+		return (copy);
 	if (is_option(argv[i]))
 		ft_perror(argv[i -1], is_option(argv[i]));
 //	while(i < argc)
@@ -180,19 +185,25 @@ char	**unset_buildin(char **argv, char **copy)
 		env_index = find_key_env_index(argv[i], copy, key_index);
 //		printf("env_index %d\n", env_index);
 //		free(env_copy[env_index]);
+		char *temp = copy[env_index];
 		while (copy[env_index])
 		{	
 //			printf("env[%d] %s", env_index, env_copy[env_index]);
+			//printf("+++++++%s\n", copy[env_index]);
 			copy[env_index] = copy[env_index + 1];
 //			printf("env[%d] %s\n", env_index, copy[env_index]);
 			env_index++;
 		}
+		free(temp);
 		copy[env_index] = NULL;
 		new_copy = env_copy(copy);
 //		free_split(copy);
 		i++;
 	}
+	free_split(copy);
 	exit_status = EXIT_SUCCESS;
+	//env_print(new_copy);
+	printf("new_copy == NULL : %d\n", new_copy == NULL);
 	return (new_copy);
 }
 
@@ -298,14 +309,14 @@ void	unset_buildin(int argc, char **argv, char **env_copy)
 	exit_status = EXIT_SUCCESS;
 }
 */
-int	main(int argc, char **argv, char **env)
-{
-	(void)argc;
-	char	**new_env;
+// int	main(int argc, char **argv, char **env)
+// {
+// 	(void)argc;
+// 	char	**new_env;
 	
-	new_env = unset_buildin(argv, env);
-	printf("\n\n\nbefor print env\n\n\n");
-	env_print(new_env);
-}
+// 	new_env = unset_buildin(argv, env);
+// 	printf("\n\n\nbefor print env\n\n\n");
+// 	env_print(new_env);
+// }
 
 

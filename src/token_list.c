@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 21:28:15 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/26 18:54:08 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/29 10:25:36 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ static int	count_tokens(char *input)
 					i++;
 					while (input[i] && input[i] != quote_type)
 						i++;
+					i++;
 					continue ;
 				}
 				i++;
@@ -95,6 +96,7 @@ static void	fill_list(char **token_list, char *input)
 					i++;
 					while (input[i] && input[i] != quote_type)
 						i++;
+					i++;
 					continue ;
 				}
 				i++;

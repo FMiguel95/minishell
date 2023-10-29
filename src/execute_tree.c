@@ -6,11 +6,13 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/26 20:08:29 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:21:14 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+extern int exit_status;
 
 static char	*get_full_path(char *command)
 {
@@ -37,11 +39,18 @@ static char	*get_full_path(char *command)
 	return (ret);
 }
 
-static void	execute_command(char **args, char **envp)
+static void	execute_command(char **args, char **env)
 {
 	char	*full_path;
+	char **new_env;
 
-	execute_builtin(args, envp);
+	new_env = execute_builtin(args, env);
+	if (new_env)
+	{
+		// atualizar env_copy
+		//exit(0);
+
+	}
 	if (ft_strchr(args[0], '/'))
 	{
 		full_path = args[0];
@@ -63,16 +72,18 @@ static void	execute_command(char **args, char **envp)
 			exit(127);
 		}
 	}
-	// if (!fork1())
-	// {
-		execve(full_path, args, envp);
+	if (!fork1())
+	{
+		execve(full_path, args, env);
 		free(full_path);
 		free_split(args);
 		panic("execve error");
-	// }
-	// wait(0);
-	// free(full_path);
-	// free_split(args);
+	}
+	// printf("exit_status before:%d\n", WEXITSTATUS(exit_status));
+	waitpid(0, &exit_status, 0);
+	exit_status = WEXITSTATUS(exit_status);
+	free(full_path);
+	//exit(exit_status);
 }
 
 void	execute_node_exec(t_tnode_exec *exec_node, char** envp)
@@ -132,12 +143,13 @@ void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char** envp)
 		line = readline("heredoc> ");
 		if (!line || ft_strcmp(line, heredoc_node->delm) == 0)
 		{
-			if (line)
+			if (!line)
 				free(line);
 			break ;
 		}
 		ft_putstr_fd(line, fd);
 		ft_putstr_fd("\n", fd);
+		free(line);
 	}
 	// if (dup2(fd, STDIN_FILENO) == -1)
 	// 	panic("dup2 error");
@@ -147,6 +159,7 @@ void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char** envp)
 	fd = open(".heredoc", O_RDONLY, 0400);
 	if (((t_tnode_exec *)(heredoc_node->node))->argv[0] != 0)
 		execute_node(heredoc_node->node, envp);
+	close(fd);
 	unlink(".heredoc");
 }
 
@@ -164,4 +177,5 @@ void	execute_node(t_tnode *node, char** envp)
 		execute_node_heredoc((t_tnode_heredoc*)node, envp);
 	else
 		panic("invalid node type");
+	exit(exit_status);
 }

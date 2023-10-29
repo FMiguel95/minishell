@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/26 20:34:26 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:18:03 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,11 @@ int	main(int ac, char **av, char **envp)
 	char	**tokens;
 	t_tnode	*tree_root;
 	int		pid;
-	char	**env_copy;
+	char	**env_cpy;
 
 	exit_status = 0;
+	env_cpy = env_copy(envp);
+	// incrementar SHLVL
 	wait_signal();
 	while (1)
 	{
@@ -76,13 +78,18 @@ int	main(int ac, char **av, char **envp)
 			tokens = make_token_list(input);
 			tree_root = build_tree(tokens);
 			//print_node(tree_root);
-			execute_node(tree_root, envp);
+			execute_node(tree_root, env_cpy);
 			free(input);
 			free_split(tokens);
 			free_node(tree_root);
+			if (unlink(".heredoc") < 0)
+			{
+				perror(".heredoc");
+			}
 			exit(exit_status);
 		}
 		waitpid(pid, &exit_status, 0);
+		exit_status = WEXITSTATUS(exit_status);
 		free(input);
 	}
 	rl_clear_history();
