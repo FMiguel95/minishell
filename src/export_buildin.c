@@ -232,24 +232,62 @@ void	bubble_sort_array(char **copy)
 	}
 }
 
+char	**ft_strjoin_var(char **s1, char **s2)
+{
+	char	**result;
+	size_t	i;
+	size_t	j;
+
+	printf("copy len: %zu\n", pointer_array_len(s1));
+	printf("copy len: %zu\n", pointer_array_len(s2));
+	result = malloc(sizeof(char *) * (pointer_array_len(s1) + pointer_array_len(s2) + 1));
+	printf("copy len: %zu\n", pointer_array_len(s1));
+	if (!result)
+		return (NULL);
+	result[pointer_array_len(s1) + pointer_array_len(s2)] = NULL;
+	i = 0;
+	while (s1[i])
+	{
+		result[i] = s1[i];
+		printf("pointer[%zu] = %p\n", i ,result[i]);
+		i++;
+	}
+//	if (!pointer_array_len(s2))
+//		return (result);
+//	else
+//	{
+		j = 0;
+		while (s2[j])
+		{
+			result[i + j] = s2[j];
+			j++;
+		}
+//	}
+	return (result);
+}
+
 void	print_export(char **copy, char **uninitialized)
 //void	print_export(char **copy)
 {
-	(void)uninitialized;
 	size_t	index = 0;
-//	char	**all_var;
-	char	**env_sorted;
+//	char	*all_var;
+	char	**var_sorted = malloc(sizeof(char*));
+//	size_t	all_len = pointer_array_len(copy) + pointer_array_len(uninitialized);
+
+//	all_var = ft_strjoin(*copy, *uninitialized);	
+	var_sorted = ft_strjoin_var(copy, uninitialized);
+//	env_print(var_sorted);
 	
-	
-	
-	env_sorted = env_copy(copy);
-	bubble_sort_array(env_sorted);
-	while(env_sorted[index])
+//	env_sorted = var_copy(copy);
+	bubble_sort_array(var_sorted);
+	while(var_sorted[index])
 	{
-		if (strcmp(extract_key(env_sorted[index]), "_"))
-			printf("declare -x %s=\"%s\"\n", extract_key(env_sorted[index]), extract_value(env_sorted[index]));
+		if (strcmp(extract_key(var_sorted[index]), "_"))
+			printf("declare -x %s=\"%s\"\n", extract_key(var_sorted[index]), extract_value(var_sorted[index]));
+//			printf("declare -x %s%c\"%s\"\n", extract_key(var_sorted[index]), var_sorted[index][key_length(var_sorted[index])] ,extract_value(var_sorted[index]));		
 		index++;
 	}
+//	free(var_sorted);
 }
 
 char	**substitute_env_str(char *arg, char **new_copy, size_t env_index)
