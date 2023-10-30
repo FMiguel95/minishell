@@ -118,7 +118,7 @@ static int	is_option_echo(char *str)
 
 // }
 
-char	**execute_builtin(char **argv, char **env_copy)
+char	**execute_builtin(char **argv, char **env_copy, char **uninit)
 {
 	if (!ft_strcmp(argv[0], "echo"))
 		echo_buildin(argv);
@@ -126,8 +126,8 @@ char	**execute_builtin(char **argv, char **env_copy)
 		env_buildin(argv, env_copy);
 	else if (!ft_strcmp(argv[0], "pwd"))
 		pwd_buildin(argv);
-//	else if (!ft_strcmp(argv[1], "export"))
-//		export_buildin(argc, argv, env_copy);
+	else if (!ft_strcmp(argv[0], "export"))
+		export_buildin(argv, env_copy, uninit);
 	else if (!ft_strcmp(argv[0], "unset"))
 		return (unset_buildin(argv, env_copy));
 //	else if (!ft_strcmp(argv[1], "cd"))

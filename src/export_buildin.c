@@ -1,24 +1,26 @@
-#include <stdio.h>	// printf
-#include <stdlib.h>	// exit
-#include <errno.h>	// errno
-#include <unistd.h>	// write
-#include <string.h>	// strlen
+// #include <stdio.h>	// printf
+// #include <stdlib.h>	// exit
+// #include <errno.h>	// errno
+// #include <unistd.h>	// write
+// #include <string.h>	// strlen
 
-int	exit_status; // in the original will be a global variable
+#include "../include/minishell.h"
 
-int	ft_isdigit(int c)
-{
-	return (c >= '0' && c <= '9');
-}
+extern int	exit_status; // in the original will be a global variable
 
-int	key_length(char *str)		
+// int	ft_isdigit(int c)
+// {
+// 	return (c >= '0' && c <= '9');
+// }
+
+static int	key_length(char *str)		
 {
 	size_t	i = 0;
 	
 //	printf("strlen in keylen: %zu\n", strlen(str));
 	if (!str[i])
 		return (0); // confirm if is the correct one
-	while (i < strlen(str))
+	while (i < ft_strlen(str))
 	{
 		if (str[i] == '=' || str[i] == ' ' || str[i] == '\0')
 			return (i);
@@ -28,7 +30,7 @@ int	key_length(char *str)
 	return (i);
 }
 
-int	key_isalnum_underscore(char *str, size_t index)
+static int	key_isalnum_underscore(char *str, size_t index)
 {
 	size_t	i = 0;
 	
@@ -39,11 +41,13 @@ int	key_isalnum_underscore(char *str, size_t index)
 			return (0);
 		i++;
 	}
+//	if (str[i] == '\0')
+		return (1);
 //	printf("inside keyalpha char %c\n", str[i]);
-	return (str[i]);
+//	return (str[i]);
 }
 
-int	is_option(char *str)
+static int	is_option(char *str)
 {
 	char	letter = str[1];
 	
@@ -58,7 +62,7 @@ int	is_option(char *str)
 	return (0);
 }
 
-int	perror_export(char letter)
+static int	perror_export(char letter)
 {
 		write(2, "bash: export: -", 15);
 		write(2, &letter, 1);
@@ -67,16 +71,17 @@ int	perror_export(char letter)
 		exit (exit_status);	// talvez seja melhor usar um perror o exit vai ser 1????
 }
 
-int	perror_identifier(char *str)
+static int	perror_identifier(char *str)
 {
 		write(2, "bash: export: `", 15);
 		write(2, str, strlen(str));
 		write(2, "' not a valid identifier\n", 25);	// cannot use strlen()
 		exit_status = 1;
-		exit (exit_status);
+//		exit (exit_status);
+		return (exit_status);
 }
 
-char	*extract_value(char *str)
+static char	*extract_value(char *str)
 {
 	if (!*str)
 		return (0); // confirm if is the correct one
@@ -90,7 +95,7 @@ char	*extract_value(char *str)
 		return (char *)str;		// similar to exam ramk 2 ft_strpbrk
 }
 
-size_t	pointer_array_len(char **pointers)
+static size_t	pointer_array_len(char **pointers)
 {
 	size_t	len = 0;
 
@@ -101,17 +106,29 @@ size_t	pointer_array_len(char **pointers)
 }
 
 
-char	*extract_key(char *str)		
+static char	*extract_key(char *str)		
 {
 	int	length;
 	char	*key;
 	
 	if (!str)
+	{
+		printf("null str\n");
 		return (0); // confirm if is the correct one
+	}
 	length = key_length(str);
 	key = (char *)malloc(sizeof(char) * (length + 1));	// must be freed
-	strncpy(key, str, length);
-//	printf("key to be passed: %s\n", key);
+	// key = strncpy(key, str, length+1);
+	int i = 0;
+	while (i < length)
+	{
+		key[i] = str[i];
+		i++;
+	}
+	key[i] = '\0';
+	// printf("from: %s\n", str);
+	// printf("length: %d\n", length);
+	// printf("key to be passed: %s\n", key);
 	return (key);
 }
 
@@ -131,7 +148,7 @@ char	*extract_key(char *str)
 }
 */
 
-int	find_key_env_index(char *argv, char **env, int index)
+static size_t	find_key_env_index(char *argv, char **env, int index)
 {
 	int	i_str = 0;
 	int	i_env = 0;
@@ -162,47 +179,44 @@ void	ft_swap(char **env1, char **env2)
 	*env2 = temp;
 }
 
-char	**env_copy(char **env)
-{
-	char **env_copy;
-	size_t	key_index = 0;
-	size_t	value_index = 0;
+// static char	**env_copy(char **env)
+// {
+// 	char **env_copy;
+// 	size_t	key_index = 0;
+// 	size_t	value_index = 0;
 
-//	while (env[key_index])
-//		key_index++;
-	env_copy = (char**)malloc(sizeof(char*) * (pointer_array_len(env) + 2));
-	if (!env_copy)
-		return NULL;
-	env_copy[pointer_array_len(env) ] = '\0';
-	env_copy[pointer_array_len(env)  + 1] = '\0';
-//	key_index = 0;
-	while (env[key_index])
-	{
-		env_copy[key_index] = (char *)malloc(sizeof(char) * (strlen(env[key_index]) + 1));
-		if (!env_copy[key_index])
-			return NULL;
-		env_copy[key_index][strlen(env[key_index])] = '\0';
-		while (value_index < strlen(env[key_index]))
-		{
-			env_copy[key_index][value_index] = env[key_index][value_index] ;
-			value_index++;
-		}
-		value_index = 0;
-		key_index++;	
-	}
-//	printf("env_copy len: %d\n", pointer_array_len(env_copy));
-	return (env_copy);
-}
+// //	while (env[key_index])
+// //		key_index++;
+// 	env_copy = (char**)malloc(sizeof(char*) * (pointer_array_len(env) + 2));
+// 	if (!env_copy)
+// 		return NULL;
+// 	env_copy[pointer_array_len(env) ] = '\0';
+// 	env_copy[pointer_array_len(env)  + 1] = '\0';
+// //	key_index = 0;
+// 	while (env[key_index])
+// 	{
+// 		env_copy[key_index] = (char *)malloc(sizeof(char) * (strlen(env[key_index]) + 1));
+// 		if (!env_copy[key_index])
+// 			return NULL;
+// 		env_copy[key_index][strlen(env[key_index])] = '\0';
+// 		while (value_index < strlen(env[key_index]))
+// 		{
+// 			env_copy[key_index][value_index] = env[key_index][value_index] ;
+// 			value_index++;
+// 		}
+// 		value_index = 0;
+// 		key_index++;	
+// 	}
+// //	printf("env_copy len: %d\n", pointer_array_len(env_copy));
+// 	return (env_copy);
+// }
 
-void	env_print(char **env)
+static void	env_print(char **env)
 {
 	size_t	key_index = 0;
-	size_t	value_index = 0;
 	
 	while (env[key_index])
 	{
-		while (value_index < strlen(env[key_index]))
-			value_index++;
 		printf("%s\n", env[key_index]);
 		key_index++;	
 	}
@@ -232,16 +246,15 @@ void	bubble_sort_array(char **copy)
 	}
 }
 
-char	**ft_strjoin_var(char **s1, char **s2)
+static char	**ft_strjoin_var(char **s1, char **s2)
 {
 	char	**result;
 	size_t	i;
 	size_t	j;
 
-	printf("copy len: %zu\n", pointer_array_len(s1));
-	printf("copy len: %zu\n", pointer_array_len(s2));
+//	printf("copy len: %zu\n", pointer_array_len(s1));
+//	printf("copy len: %zu\n", pointer_array_len(s2));
 	result = malloc(sizeof(char *) * (pointer_array_len(s1) + pointer_array_len(s2) + 1));
-	printf("copy len: %zu\n", pointer_array_len(s1));
 	if (!result)
 		return (NULL);
 	result[pointer_array_len(s1) + pointer_array_len(s2)] = NULL;
@@ -249,7 +262,7 @@ char	**ft_strjoin_var(char **s1, char **s2)
 	while (s1[i])
 	{
 		result[i] = s1[i];
-		printf("pointer[%zu] = %p\n", i ,result[i]);
+//		printf("pointer[%zu] = %p\n", i ,result[i]);
 		i++;
 	}
 //	if (!pointer_array_len(s2))
@@ -263,6 +276,7 @@ char	**ft_strjoin_var(char **s1, char **s2)
 			j++;
 		}
 //	}
+//	printf("all_var len: %zu\n", pointer_array_len(result));
 	return (result);
 }
 
@@ -271,34 +285,46 @@ void	print_export(char **copy, char **uninitialized)
 {
 	size_t	index = 0;
 //	char	*all_var;
-	char	**var_sorted = malloc(sizeof(char*));
+	char	**var_sorted;
 //	size_t	all_len = pointer_array_len(copy) + pointer_array_len(uninitialized);
 
-//	all_var = ft_strjoin(*copy, *uninitialized);	
-	var_sorted = ft_strjoin_var(copy, uninitialized);
+//	all_var = ft_strjoin(*copy, *uninitialized);
+	if (uninitialized)
+		var_sorted = ft_strjoin_var(copy, uninitialized);
+	else
+		var_sorted = copy;
 //	env_print(var_sorted);
 	
 //	env_sorted = var_copy(copy);
+	//printf("--------------before sort\n");
+	//print_list(var_sorted);
 	bubble_sort_array(var_sorted);
+	// printf("---------------after sort\n");
+	// print_list(var_sorted);
+//	env_print(var_sorted);
 	while(var_sorted[index])
 	{
-		if (strcmp(extract_key(var_sorted[index]), "_"))
-			printf("declare -x %s=\"%s\"\n", extract_key(var_sorted[index]), extract_value(var_sorted[index]));
-//			printf("declare -x %s%c\"%s\"\n", extract_key(var_sorted[index]), var_sorted[index][key_length(var_sorted[index])] ,extract_value(var_sorted[index]));		
+
+		char *key = extract_key(var_sorted[index]);
+		char *val = extract_value(var_sorted[index]);
+		//printf("KEYYYY:%s\n", key);
+		if (var_sorted[index][ft_strlen(key)] == '=')
+		{
+			if (ft_strcmp(key, "_"))
+				printf("declare -x %s=\"%s\"\n", key, val);
+		}
+		else
+			printf("declare -x %s\n", key);
+		free(key);
+		//free(val);
 		index++;
 	}
 //	free(var_sorted);
 }
 
-char	**substitute_env_str(char *arg, char **new_copy, size_t env_index)
+static char	**substitute_env_str(char *arg, char **new_copy, size_t env_index)
 {
-	char	*new_env_value = NULL;
-
-	new_env_value = malloc(strlen(arg) + 1);
-	new_env_value = arg;
-	if (!new_env_value)
-		return NULL; // PANIC
-	new_copy[env_index] = new_env_value;
+	new_copy[env_index] = arg;
 //	free(copy[env_index]);	//probably not necessary free_split(copy)
 	return (new_copy);
 }
@@ -334,19 +360,23 @@ char	**append_env(char *arg, char **copy)
 */	
 //	printf("string on copy: %s\n", copy[pointer_array_len(copy)]);
 //	printf("string on new: %s\n", new_env_copy[pointer_array_len(copy)]);
-	env_print(new_copy);
+//	env_print(new_copy);
 //	free_split(copy);
 	return (new_copy);
 }
 
-char	**append_uninitialized(char *arg, char **uninitialized)
+char	**append_uninitialized(char *arg, char **uninitialized, char **copy)
 {
 	char	**new_uninitialized;
 //	size_t	env_index;
 //	size_t	key_len;
 //		size_t	key_len;
-	size_t	index =0;
+	size_t	index = 0;
+	size_t	key_len;
+	size_t	env_index;
 	
+	key_len = key_length(arg);
+	env_index = find_key_env_index(arg, copy, key_len);	
 //	key_len = key_length(arg);
 //	env_index = find_key_env_index(arg, uninitialized, key_len);
 //	printf("env_index %zu\n", env_index);
@@ -357,6 +387,10 @@ char	**append_uninitialized(char *arg, char **uninitialized)
 //	printf("arg %s\n", arg);
 //	printf("uninitialized[] %s\n", new_uninitialized[0]);
 
+//	printf("\n\nenv index: %zu\n\n", env_index);
+//	printf("\n\ncopy len: %zu\n\n", pointer_array_len(copy));
+	if (env_index != pointer_array_len(copy))
+		return (new_uninitialized);
 	while (index < pointer_array_len(uninitialized))
 	{
 		if (!strcmp(arg, new_uninitialized[index]))
@@ -409,24 +443,25 @@ char	**append_uninitialized(char *arg, char **uninitialized)
 }
 */
 
-void	export_buildin(int argc, char **argv, char **env_copy)
+void	export_buildin(char **argv, char ***env_copy, char ***uninit)
 {
 //	(void)argc;
-	(void)env_copy;
-	char	**uninitialized = malloc(sizeof(char*));
+//	(void)env_copy;
 
 	int	i = 1;		// index variable to goes through the arrays of pointers of each argument string pointer 
 //	int	key_index = 0;
 //	int	env_index = 0;
-
+	
+//	printf("\n\n\nindex of PWD: %zu\n\n\n", find_key_env_index("OLDPWD", env_copy, 6));
+	// if (find_key_env_index("OLDPWD", env_copy, 6) == pointer_array_len(env_copy))
+	// 	uninitialized[0] = strdup("OLDPWD");
 //	if (argc == 1)		//for test purpose only
 //		exit(0);
 //	if (argc == 2)		// has no options or arguments
 //		export_print(env_copy, unitialized);
-//	if (!strcmp(argv[0], "export") && argc == 1)
-	if (!strcmp(argv[0], "./a.out") && argc == 1)
+	if (!ft_strcmp(argv[0], "export") && argv[1] == NULL)
 	{
-		print_export(env_copy, uninitialized);
+		print_export(*env_copy, *uninit);
 //		print_export(env_copy);
 		exit (0);
 	}
@@ -435,17 +470,24 @@ void	export_buildin(int argc, char **argv, char **env_copy)
 	while (argv[i])
 	{
 //		printf("key len: %d\n", key_length(argv[i]));
-		
-//		if (!key_isalnum_underscore(argv[i], key_length(argv[i])) || ft_isdigit(*argv[i]))
-//			perror_identifier(argv[i]);
+//		printf("alphanum_: %d\n\n", key_isalnum_underscore(argv[i], key_length(argv[i])));
+		if (!key_isalnum_underscore(argv[i], key_length(argv[i])) || ft_isdigit(*argv[i]))
+		{
+			perror_identifier(argv[i]);
+			i++;
+			continue ;
+		}
 		if (strchr(argv[i], '='))
-			env_copy = append_env(argv[i], env_copy);
+			*env_copy = append_env(argv[i], *env_copy);
 		else
-			uninitialized = append_uninitialized(argv[i], uninitialized);
+			*uninit = append_uninitialized(argv[i], *uninit, *env_copy);
 //		printf("after append: %d\n", pointer_array_len(env_copy));
 		i++;
 	}
-	env_print(uninitialized);
+	printf("++++++++\n\n");
+	env_print(*env_copy);
+	printf("++++++++\n\n");
+	// env_print(uninitialized);
 	exit_status = EXIT_SUCCESS;
 }
 
@@ -779,23 +821,23 @@ void	export_buildin(int argc, char **argv, char **env_copy)
 	exit_status = EXIT_SUCCESS;
 }
 */
-int	main(int argc, char **argv, char **env)
-{
-//	(void)argc;
-//	(void)argv;
-//	(void)env;
-//	char	**copy;
+// int	main(int argc, char **argv, char **env)
+// {
+// //	(void)argc;
+// //	(void)argv;
+// //	(void)env;
+// //	char	**copy;
 
-//	copy = env_copy(env);
-//	env_print(copy);
-//	bubble_sort_array(copy);
-//	printf("\n\ndepois do sort\n\n");
-//	env_print(copy);
-//	print_export(copy);
-//	printf("key to be passed: %s\n", extract_key("isto e um teste=hxbndtsdk"));
-//	printf("\n\n\n%s  \n\n\n\n", extract_key("USER=aamaral-"));	
-//	ft_swap(&env[0], &env[1]);
-//	env_print(env);
-	export_buildin(argc, argv, env);
+// //	copy = env_copy(env);
+// //	env_print(copy);
+// //	bubble_sort_array(copy);
+// //	printf("\n\ndepois do sort\n\n");
+// //	env_print(copy);
+// //	print_export(copy);
+// //	printf("key to be passed: %s\n", extract_key("isto e um teste=hxbndtsdk"));
+// //	printf("\n\n\n%s  \n\n\n\n", extract_key("USER=aamaral-"));	
+// //	ft_swap(&env[0], &env[1]);
+// //	env_print(env);
+// 	export_buildin(argc, argv, env);
 
-}
+// }

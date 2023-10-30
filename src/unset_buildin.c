@@ -165,16 +165,15 @@ char	**env_copy(char **env)
 	return (copy);
 }
 
-char	**unset_buildin(char **argv, char **copy)
+void	unset_buildin(char **argv, char ***copy)
 {
-	printf("unset_buildin\n");
 	int	i = 1; 
 	int	key_index = 0;
 	int	env_index = 0;
 	char	**new_copy;
 
 	if (!argv[1])
-		return (copy);
+		return ;
 	if (is_option(argv[i]))
 		ft_perror(argv[i -1], is_option(argv[i]));
 //	while(i < argc)
@@ -182,29 +181,30 @@ char	**unset_buildin(char **argv, char **copy)
 	{
 		key_index = strlen(argv[i]);
 //		printf("index passed %d\n", key_index);
-		env_index = find_key_env_index(argv[i], copy, key_index);
+		env_index = find_key_env_index(argv[i], *copy, key_index);
 //		printf("env_index %d\n", env_index);
 //		free(env_copy[env_index]);
-		char *temp = copy[env_index];
-		while (copy[env_index])
+		char *temp = (*copy)[env_index];
+		while ((*copy)[env_index])
 		{	
 //			printf("env[%d] %s", env_index, env_copy[env_index]);
 			//printf("+++++++%s\n", copy[env_index]);
-			copy[env_index] = copy[env_index + 1];
+			(*copy)[env_index] = (*copy)[env_index + 1];
 //			printf("env[%d] %s\n", env_index, copy[env_index]);
 			env_index++;
 		}
 		free(temp);
-		copy[env_index] = NULL;
-		new_copy = env_copy(copy);
-//		free_split(copy);
+		(*copy)[env_index] = NULL;
+		new_copy = env_copy(*copy);
+		// free_split(*copy);
 		i++;
 	}
-	free_split(copy);
+	free_split(*copy);
+	*copy = new_copy;
+	// print_list(*copy);
 	exit_status = EXIT_SUCCESS;
-	//env_print(new_copy);
-	printf("new_copy == NULL : %d\n", new_copy == NULL);
-	return (new_copy);
+	// //env_print(new_copy);
+	// printf("new_copy == NULL : %d\n", new_copy == NULL);
 }
 
 
