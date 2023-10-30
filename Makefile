@@ -1,7 +1,9 @@
 NAME = minishell
 NAME_BONUS = minishell_bonus
 
-SRC_LIST = minishell.c constructors.c minishell_utils.c build_tree.c execute_tree.c token_list.c
+SRC_LIST = minishell.c constructors.c build_tree.c execute_tree.c free_tree.c \
+			token_list.c pwd_buildin.c echo_buildin.c env_buildin.c \
+			execute_buildin.c unset_buildin.c init_vars.c export_buildin.c
 SRC_LIST_BONUS = minishell.c
 
 SRC_DIR = src/
@@ -18,7 +20,7 @@ LIBFT_DIR = libft/
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
 CC = cc
-CFLAGS = -g #-Wall -Werror -Wextra
+CFLAGS = -g -fsanitize=address #-Wall -Werror -Wextra 
 RM = rm -rf
 
 all: $(NAME)
