@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/29 13:57:21 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/10/30 23:46:27 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,17 +89,21 @@ void	panic(char *str);
 int		fork1();
 void	handle_sigint(int signal);
 void	wait_signal(void);
-void	execute_node(t_tnode *node, char **envp);
+void	execute_node(t_tnode *node, char ***envp, char **uninit);
 void	free_node(t_tnode *node);
 void	print_node(t_tnode *node);
 
 char	**make_token_list(char *input);
 
-char	**execute_builtin(char **argv, char **env_copy);
+char	**execute_builtin(char **argv, char **env, char **uninit);
 void	pwd_buildin(char **argv);
 void	echo_buildin(char **argv);
-void	env_buildin(char **argv, char **env_copy);
-char	**unset_buildin(char **argv, char **copy);
+void	env_buildin(char **argv, char **env);
+void	unset_buildin(char **argv, char ***env);
+void	export_buildin(char **argv, char ***env, char ***uninit);
+
+void	init_env(char **env);
+
 
 int		ft_perror(char *str, char letter);
 char	**env_copy(char **env);
