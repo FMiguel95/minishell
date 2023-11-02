@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/30 23:47:56 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/02 22:17:54 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,30 @@
 
 extern int exit_status;
 
-static char	*get_full_path(char *command)
+char	*my_getenv(char *var, char **env)
+{
+	char	**split;
+	char	*result;
+
+	result = NULL;
+	while (*env)
+	{
+		if (ft_strncmp(var, *env, ft_strlen(var)) == 0 && (*env)[ft_strlen(var)] == '=')
+			return (*env + ft_strlen(var) + 1);
+		// split = ft_split(*env, '=');
+		// if (ft_strcmp(var, split[0]) == 0 && split[1])
+		// {
+		// 	result = ft_strdup(split[1]);
+		// 	free_split(split);
+		// 	break ;
+		// }
+		// free_split(split);
+		env++;
+	}
+	return (result);
+}
+
+static char	*get_full_path(char *command, char **env)
 {
 	char	*ret;
 	char	*temp;
@@ -22,7 +45,10 @@ static char	*get_full_path(char *command)
 	int		i;
 
 	ret = NULL;
-	paths = ft_split(getenv("PATH"), ':');
+	temp = my_getenv("PATH", env);
+	if (!temp)
+		return (NULL);
+	paths = ft_split(temp, ':');
 	i = 0;
 	while (paths[i] != NULL)
 	{
@@ -39,7 +65,7 @@ static char	*get_full_path(char *command)
 	return (ret);
 }
 
-static void	execute_command(char **args, char ***env, char **uninit)
+static void	execute_command(char **args, char ***env, char ***uninit)
 {
 	char	*full_path;
 	if (!ft_strcmp(args[0], "echo"))
@@ -49,14 +75,16 @@ static void	execute_command(char **args, char ***env, char **uninit)
 	else if (!ft_strcmp(args[0], "pwd"))
 		pwd_buildin(args);
 	else if (!ft_strcmp(args[0], "export"))
-		export_buildin(args, env, &uninit);
+		export_buildin(args, env, uninit);
 	else if (!ft_strcmp(args[0], "unset"))
 		unset_buildin(args, env);
+	else if (!ft_strcmp(args[0], "cd"))
+		cd_buildin(args, *env);
 	else
 	{
 		if (ft_strchr(args[0], '/'))
 		{
-			full_path = args[0];
+			full_path = ft_strdup(args[0]);
 			if (access(full_path, X_OK) != 0)
 			{
 				perror(full_path);
@@ -66,11 +94,11 @@ static void	execute_command(char **args, char ***env, char **uninit)
 		}
 		else
 		{
-			full_path = get_full_path(args[0]);
+			full_path = get_full_path(args[0], *env);
 			if (full_path == NULL)
 			{
 				ft_putstr_fd(args[0], STDERR_FILENO);
-				ft_putstr_fd(": command not found\n", STDERR_FILENO);
+				ft_putendl_fd(": command not found", STDERR_FILENO);
 				// free_split(args);
 				exit(127);
 			}
@@ -90,14 +118,14 @@ static void	execute_command(char **args, char ***env, char **uninit)
 	}
 }
 
-void	execute_node_exec(t_tnode_exec *exec_node, char*** env, char **uninit)
+void	execute_node_exec(t_tnode_exec *exec_node, char*** env, char ***uninit)
 {
 	if (exec_node->argv[0] == 0)
 		exit(1);
 	execute_command(exec_node->argv, env, uninit);
 }
 
-void	execute_node_pipe(t_tnode_pipe *pipe_node, char*** envp, char **uninit)
+void	execute_node_pipe(t_tnode_pipe *pipe_node, char*** envp, char ***uninit)
 {
 	int	pid;
 	int	p[2];
@@ -126,48 +154,153 @@ void	execute_node_pipe(t_tnode_pipe *pipe_node, char*** envp, char **uninit)
 	wait(0);
 }
 
-void	execute_node_redir(t_tnode_redir *redir_node, char*** envp, char **uninit)
+// void	execute_node_redir(t_tnode_redir *redir_node, char*** envp, char **uninit)
+// {
+// 	close(redir_node->fd);
+// 	if (open(redir_node->file, redir_node->flags, 0666) < 0)
+// 	{
+// 		perror(redir_node->file);
+// 		exit(1);
+// 	}
+// 	if (redir_node->node)
+// 		execute_node(redir_node->node, envp, uninit);
+// }
+
+void	execute_node_redir(t_tnode_redir *redir_node, char*** envp, char ***uninit)
 {
-	close(redir_node->fd);
-	if (open(redir_node->file, redir_node->flags, 0666) < 0)
+	int new_fd;
+
+	new_fd = open(redir_node->file, redir_node->flags, 0666);
+	if (new_fd < 0)
 	{
 		perror(redir_node->file);
 		exit(1);
 	}
+	if (dup2(new_fd, redir_node->fd) == -1)
+		panic("dup2 error");
+	close(new_fd);
 	if (redir_node->node)
 		execute_node(redir_node->node, envp, uninit);
 }
 
-void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char*** envp, char **uninit)
+// void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char*** envp, char **uninit)
+// {
+// 	char	*line;
+// 	int		fd = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+// 	while (1)
+// 	{
+// 		line = readline("heredoc> ");
+// 		if (!line || ft_strcmp(line, heredoc_node->delm) == 0)
+// 		{
+// 			if (line)
+// 				free(line);
+// 			break ;
+// 		}
+// 		ft_putstr_fd(line, fd);
+// 		ft_putstr_fd("\n", fd);
+// 		free(line);
+// 	}
+// 	close(fd);
+// 	close(STDIN_FILENO);
+// 	fd = open(".heredoc", O_RDONLY, 0400);
+// 	if (((t_tnode_exec *)(heredoc_node->node))->argv[0] != 0)
+// 		execute_node(heredoc_node->node, envp, uninit);
+// 	close(fd);
+// 	unlink(".heredoc");
+// }
+
+// void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char*** envp, char **uninit)
+// {
+// 	char	*line;
+// 	int		fd;
+	
+// 	fd = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+// 	while (1)
+// 	{
+// 		line = readline("heredoc> ");
+// 		if (!line || ft_strcmp(line, heredoc_node->delm) == 0)
+// 		{
+// 			if (line)
+// 				free(line);
+// 			break ;
+// 		}
+// 		ft_putendl_fd(line, fd);
+// 		free(line);
+// 	}
+// 	close(fd);
+// 	fd = open(".heredoc", O_RDONLY, 0400);
+// 	if (dup2(fd, STDIN_FILENO) == -1)
+// 		panic("dup2 error");
+// 	close(fd);
+// 	if (((t_tnode_exec *)(heredoc_node->node))->argv[0] != 0)
+// 		execute_node(heredoc_node->node, envp, uninit);
+// 	unlink(".heredoc");
+// }
+
+void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, char*** envp, char ***uninit)
+{
+	int fd;
+
+	fd = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+	write(fd, heredoc_node->input, ft_strlen(heredoc_node->input));
+	close(fd);
+	fd = open(".heredoc", O_RDONLY, 0400);
+	if (dup2(fd, STDIN_FILENO) == -1)
+		panic("dup2 error");
+	close(fd);
+	if (heredoc_node->node)
+		execute_node(heredoc_node->node, envp, uninit);
+	unlink(".heredoc");
+}
+
+void	get_heredoc(t_tnode_heredoc *heredoc_node)
 {
 	char	*line;
-	int		fd = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+	char	*temp;
+	
 	while (1)
 	{
 		line = readline("heredoc> ");
 		if (!line || ft_strcmp(line, heredoc_node->delm) == 0)
 		{
-			if (!line)
+			if (line)
 				free(line);
 			break ;
 		}
-		ft_putstr_fd(line, fd);
-		ft_putstr_fd("\n", fd);
+		temp = ft_strjoin(line, "\n");
 		free(line);
+		line = temp;
+		temp = ft_strjoin(heredoc_node->input, line);
+		if (heredoc_node->input)
+			free(heredoc_node->input);
+		free(line);
+		heredoc_node->input = temp;
 	}
-	// if (dup2(fd, STDIN_FILENO) == -1)
-	// 	panic("dup2 error");
-	// close(fd);
-	close(fd);
-	close(STDIN_FILENO);
-	fd = open(".heredoc", O_RDONLY, 0400);
-	if (((t_tnode_exec *)(heredoc_node->node))->argv[0] != 0)
-		execute_node(heredoc_node->node, envp, uninit);
-	close(fd);
-	unlink(".heredoc");
+
+	// printf("================\n");
+	// printf("%s", heredoc_node->input);
+	// printf("================\n");
 }
 
-void	execute_node(t_tnode *node, char*** envp, char **uninit)
+void	check_heredocs(t_tnode *node)
+{
+	if (node && node->type == PIPE)
+	{
+		check_heredocs(((t_tnode_pipe*)node)->branch_left);
+		check_heredocs(((t_tnode_pipe*)node)->branch_right);
+	}
+	else if (node && node->type == REDIR)
+	{
+		check_heredocs(((t_tnode_redir*)node)->node);
+	}
+	else if (node && node->type == HEREDOC)
+	{
+		get_heredoc((t_tnode_heredoc*)node);
+		check_heredocs(((t_tnode_heredoc*)node)->node);
+	}
+}
+
+void	execute_node(t_tnode *node, char*** envp, char ***uninit)
 {
 	if (node == NULL)
 		panic("null node");
@@ -181,5 +314,5 @@ void	execute_node(t_tnode *node, char*** envp, char **uninit)
 		execute_node_heredoc((t_tnode_heredoc*)node, envp, uninit);
 	else
 		panic("invalid node type");
-	exit(exit_status);
+	//exit(exit_status);
 }

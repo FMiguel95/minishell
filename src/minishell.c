@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/30 23:46:22 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/02 22:38:04 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,35 @@ int	fork1(void)
 	return(pid);
 }
 
-// TODO: fix heredocs with pipes, heredocs with redirects leaks
-// quote stuff (ls "<" Makefile  aaa)
+// TO FIX
+
+// when expanding env vars, token must end when next char is not alphanumeric or underscore
+
+// expand $? to exit status
+
+// check if exit status is correct everywhere
+
+// unset SHLVL then run ./minishell : segfault
+	// #0 0x4d1dab in ft_atoi (/nfs/homes/fernacar/Git/minishell/minishell+0x4d1dab)
+    // #1 0x4cf7ac in init_env /nfs/homes/fernacar/Git/minishell/src/init_vars.c:195:18
+    // #2 0x4c88e7 in main /nfs/homes/fernacar/Git/minishell/src/minishell.c:84:2
+
+// export a then export a=1 : a is still in uninit
+
+// export a then unset a : must remove a from uninit list 
+
+// cd - : must print path
+
+// unset _
+// export _
+
+// implement exit
+
+
+// NOTES
+
+// my_getenv behaves like getenv: it returns NULL if key nor found
+
 
 int	main(int ac, char **av, char **envp)
 {
@@ -80,25 +107,34 @@ int	main(int ac, char **av, char **envp)
 		add_history(input);
 
 
-		tokens = make_token_list(input);
+		tokens = make_token_list(input, env_cpy);
 		tree_root = build_tree(tokens);
+		//print_node(tree_root);
 		if (tree_root->type == EXEC
 			&& (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "unset") == 0 
 			|| (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "export") == 0
-			&& ((t_tnode_exec *)tree_root)->argv[1] != NULL)))
+				&& ((t_tnode_exec *)tree_root)->argv[1] != NULL)
+			|| (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "cd") == 0)))
 		{
 			if (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "unset") == 0)
 				unset_buildin(((t_tnode_exec *)tree_root)->argv, &env_cpy);
 			else if (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "export") == 0)
 				export_buildin(((t_tnode_exec *)tree_root)->argv, &env_cpy, &uninit);
+			else if (ft_strcmp(((t_tnode_exec *)tree_root)->argv[0], "cd") == 0)
+				cd_buildin(((t_tnode_exec *)tree_root)->argv, env_cpy);
 		}
-		else if (!(pid = fork1()))
+		// printf("===================================\n");
+		// print_list(uninit);
+		if (!(pid = fork1()))
 		{
 			//print_node(tree_root);
-			execute_node(tree_root, &env_cpy, uninit);
+			check_heredocs(tree_root);
+			execute_node(tree_root, &env_cpy, &uninit);
 			free(input);
 			free_split(tokens);
 			free_node(tree_root);
+			free_split(env_cpy);
+			free_split(uninit);			
 			// if (unlink(".heredoc") < 0)
 			// {
 			// 	perror(".heredoc");
@@ -116,5 +152,6 @@ int	main(int ac, char **av, char **envp)
 	printf("🔥exit🔥\n");
 	printf("exit_status:%d\n", exit_status);
 	free_split(env_cpy);
+	free_split(uninit);
 	return (exit_status);
 }

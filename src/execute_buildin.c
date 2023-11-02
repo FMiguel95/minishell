@@ -10,6 +10,26 @@
 //int	exit_status; 
 extern int exit_status;
 
+// int	ft_perror(char *str, char letter)
+// {
+// 	ft_putstr_fd("bash: ", 2);
+// 	ft_putstr_fd(str, 2);
+// 	ft_putstr_fd(": -", 2);
+// 	ft_putchar_fd(letter, 2);
+// 	ft_putstr_fd(": invalid option\n", 2);	
+// 	ft_putstr_fd(str, 2);
+// 	ft_putstr_fd(": usage: ", 2);
+// 	ft_putstr_fd(str, 2);
+// 	if (!ft_strcmp(str, "pwd"))
+// 		ft_putstr_fd("\n", 2);
+// 	if (!ft_strcmp(str, "unset"))
+// 		ft_putstr_fd("[name ...]\n", 2);
+// 	if (!ft_strcmp(str, "export"))
+// 		ft_putstr_fd("[name[=value] ...]\n", 2);
+// 	exit_status = 2;
+// 	exit (exit_status);
+// }
+
 int	ft_perror(char *str, char letter)
 {
 	ft_putstr_fd("bash: ", 2);
@@ -20,12 +40,17 @@ int	ft_perror(char *str, char letter)
 	ft_putstr_fd(str, 2);
 	ft_putstr_fd(": usage: ", 2);
 	ft_putstr_fd(str, 2);
-	if (!ft_strcmp(str, "pwd"))
+//		if (!ft_strcmp(str, "unset"))
+	if (!strcmp(str, "./a.out"))
 		ft_putstr_fd("\n", 2);
-	if (!ft_strcmp(str, "unset"))
+	if (!strcmp(str, "unset"))
 		ft_putstr_fd("[name ...]\n", 2);
-	if (!ft_strcmp(str, "export"))
+	if (!strcmp(str, "export"))
 		ft_putstr_fd("[name[=value] ...]\n", 2);
+	if (!strcmp(str, "export"))
+		ft_putstr_fd("[name[=value] ...]\n", 2);
+	if (!strcmp(str, "cd"))
+		ft_putstr_fd("[dir]\n", 2);
 	exit_status = 2;
 	exit (exit_status);
 }
@@ -118,24 +143,24 @@ static int	is_option_echo(char *str)
 
 // }
 
-char	**execute_builtin(char **argv, char **env_copy, char **uninit)
-{
-	if (!ft_strcmp(argv[0], "echo"))
-		echo_buildin(argv);
-	else if (!ft_strcmp(argv[0], "env"))
-		env_buildin(argv, env_copy);
-	else if (!ft_strcmp(argv[0], "pwd"))
-		pwd_buildin(argv);
-	else if (!ft_strcmp(argv[0], "export"))
-		export_buildin(argv, env_copy, uninit);
-	else if (!ft_strcmp(argv[0], "unset"))
-		return (unset_buildin(argv, env_copy));
-//	else if (!ft_strcmp(argv[1], "cd"))
-//		cd_buildin(argc, argv, env_copy);
-//	else if (!ft_strcmp(argv[1], "exit"))
-//		exit_buildin(argc, argv, env_copy);
-	return (env_copy);
-}
+// char	**execute_builtin(char **argv, char ***env_copy, char ***uninit)
+// {
+// 	if (!ft_strcmp(argv[0], "echo"))
+// 		echo_buildin(argv);
+// 	else if (!ft_strcmp(argv[0], "env"))
+// 		env_buildin(argv, env_copy);
+// 	else if (!ft_strcmp(argv[0], "pwd"))
+// 		pwd_buildin(argv);
+// 	else if (!ft_strcmp(argv[0], "export"))
+// 		export_buildin(argv, env_copy, uninit);
+// 	else if (!ft_strcmp(argv[0], "unset"))
+// 		unset_buildin(argv, &env_copy);
+// //	else if (!ft_strcmp(argv[1], "cd"))
+// //		cd_buildin(argc, argv, env_copy);
+// //	else if (!ft_strcmp(argv[1], "exit"))
+// //		exit_buildin(argc, argv, env_copy);
+// 	return (env_copy);
+// }
 
 // int	main(int argc, char **argv, char **envp)
 // {

@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/05 21:28:15 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/29 10:25:36 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/02 20:02:39 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ static void	fill_list(char **token_list, char *input)
 	}
 }
 
-static char	*handle_quotes_str(char *token)
+static char	*handle_quotes_str(char *token, char **env)
 {
 	char	*new_str;
 	char	*temp;
@@ -134,12 +134,13 @@ static char	*handle_quotes_str(char *token)
 			sub_start = i + 1; // mark the start of the variable name
 			// lets advance until the end of the variable name (until it finds a space, quote, or the token ends)
 			while (token[i] && !ft_isspace(token[i]) && token[i] != '\'' && token[i] != '\"')
+			//while (token[i] && ft_isalnum(token[i]))
 				i++;
 			// create a char* with just the variable name
 			substr = ft_calloc(i - sub_start + 1, 1);
 			ft_strlcat(substr, token + sub_start, i - sub_start + 1);
 			// get the variable value with getenv and add it to the str
-			temp = ft_strjoin(new_str, getenv(substr));
+			temp = ft_strjoin(new_str, my_getenv(substr, env));
 			free(new_str);
 			free(substr);
 			new_str = temp;
@@ -169,20 +170,20 @@ static char	*handle_quotes_str(char *token)
 	return (new_str);
 }
 
-static void	handle_quotes(char **token_list)
+static void	handle_quotes(char **token_list, char **env)
 {
 	char	*temp;
 
 	while (*token_list)
 	{
 		temp = *token_list;
-		*token_list = handle_quotes_str(temp);
+		*token_list = handle_quotes_str(temp, env);
 		free(temp);
 		token_list++;
 	}
 }
 
-char	**make_token_list(char *input)
+char	**make_token_list(char *input, char **env)
 {
 	char	**token_list;
 	int		token_count;
@@ -194,7 +195,7 @@ char	**make_token_list(char *input)
 	token_list[token_count] = NULL;
 	fill_list(token_list, input);
 	//print_list(token_list);
-	handle_quotes(token_list);
+	handle_quotes(token_list, env);
 	//print_list(token_list);
 	return (token_list);
 }
@@ -202,7 +203,7 @@ char	**make_token_list(char *input)
 void print_list(char **list)
 {
 	int i = 0;
-	while (list[i] != NULL)
+	while (list && list[i] != NULL)
 	{
 		printf("%s$\n", list[i]);
 		i++;

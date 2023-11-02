@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 18:55:28 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/25 21:04:00 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/02 17:02:07 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ t_tnode	*construct_heredoc(t_tnode *subnode, char *delm)
 	node->type = HEREDOC;
 	node->node = subnode;
 	node->delm = delm;
+	node->input = NULL;
 	return ((t_tnode *)node);
 }
 

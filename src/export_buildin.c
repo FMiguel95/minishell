@@ -99,7 +99,7 @@ static size_t	pointer_array_len(char **pointers)
 {
 	size_t	len = 0;
 
-	while (pointers[len])
+	while (pointers && pointers[len])
 		len++;	
 //	printf("number of env var: %d\n", len);
 	return (len);
@@ -112,10 +112,7 @@ static char	*extract_key(char *str)
 	char	*key;
 	
 	if (!str)
-	{
-		printf("null str\n");
 		return (0); // confirm if is the correct one
-	}
 	length = key_length(str);
 	key = (char *)malloc(sizeof(char) * (length + 1));	// must be freed
 	// key = strncpy(key, str, length+1);
@@ -261,7 +258,7 @@ static char	**ft_strjoin_var(char **s1, char **s2)
 	i = 0;
 	while (s1[i])
 	{
-		result[i] = s1[i];
+		result[i] = ft_strdup(s1[i]);
 //		printf("pointer[%zu] = %p\n", i ,result[i]);
 		i++;
 	}
@@ -272,7 +269,7 @@ static char	**ft_strjoin_var(char **s1, char **s2)
 		j = 0;
 		while (s2[j])
 		{
-			result[i + j] = s2[j];
+			result[i + j] = ft_strdup(s2[j]);
 			j++;
 		}
 //	}
@@ -292,7 +289,7 @@ void	print_export(char **copy, char **uninitialized)
 	if (uninitialized)
 		var_sorted = ft_strjoin_var(copy, uninitialized);
 	else
-		var_sorted = copy;
+		var_sorted = env_copy(copy);
 //	env_print(var_sorted);
 	
 //	env_sorted = var_copy(copy);
@@ -306,7 +303,7 @@ void	print_export(char **copy, char **uninitialized)
 	{
 
 		char *key = extract_key(var_sorted[index]);
-		char *val = extract_value(var_sorted[index]);
+		char *val = my_getenv(key, copy);
 		//printf("KEYYYY:%s\n", key);
 		if (var_sorted[index][ft_strlen(key)] == '=')
 		{
@@ -319,12 +316,13 @@ void	print_export(char **copy, char **uninitialized)
 		//free(val);
 		index++;
 	}
-//	free(var_sorted);
+	free_split(var_sorted);
 }
 
 static char	**substitute_env_str(char *arg, char **new_copy, size_t env_index)
 {
-	new_copy[env_index] = arg;
+	free(new_copy[env_index]);
+	new_copy[env_index] = ft_strdup(arg);
 //	free(copy[env_index]);	//probably not necessary free_split(copy)
 	return (new_copy);
 }
@@ -343,7 +341,7 @@ char	**append_env(char *arg, char **copy)
 	new_copy = env_copy(copy);
 //	new_env_copy[pointer_array_len(copy)] = arg;
 	if (env_index == pointer_array_len(copy))
-		new_copy[pointer_array_len(copy)] = arg;
+		new_copy[pointer_array_len(copy)] = ft_strdup(arg);
 	else
 		substitute_env_str(arg, new_copy, env_index);
 /*		
@@ -361,11 +359,11 @@ char	**append_env(char *arg, char **copy)
 //	printf("string on copy: %s\n", copy[pointer_array_len(copy)]);
 //	printf("string on new: %s\n", new_env_copy[pointer_array_len(copy)]);
 //	env_print(new_copy);
-//	free_split(copy);
+	free_split(copy);
 	return (new_copy);
 }
 
-char	**append_uninitialized(char *arg, char **uninitialized, char **copy)
+void	append_uninitialized(char *arg, char ***uninitialized, char **copy)
 {
 	char	**new_uninitialized;
 //	size_t	env_index;
@@ -375,32 +373,38 @@ char	**append_uninitialized(char *arg, char **uninitialized, char **copy)
 	size_t	key_len;
 	size_t	env_index;
 	
-	key_len = key_length(arg);
-	env_index = find_key_env_index(arg, copy, key_len);	
+	// search if it exits in env vars
+	if (my_getenv(arg, copy) != NULL)
+		return ;
+	// search of it exists in uninit vars
+	while (*uninitialized && (*uninitialized)[index])
+	{
+		// printf("arg:%s (*uninitialized)[index]:%s\n", arg, (*uninitialized)[index]);
+		if (!ft_strcmp(arg, (*uninitialized)[index]))
+			return ;
+		index++;
+//		printf("index %zu\n", index);
+	}
+	// add to list
+	// key_len = key_length(arg);
+	// env_index = find_key_env_index(arg, copy, key_len);	
 //	key_len = key_length(arg);
 //	env_index = find_key_env_index(arg, uninitialized, key_len);
 //	printf("env_index %zu\n", env_index);
 //	printf("string on copy - 1: %s\n", copy[pointer_array_len(copy) - 1]);
 //	copy[pointer_array_len(copy)] = arg;
-	new_uninitialized = env_copy(uninitialized);
+	new_uninitialized = env_copy(*uninitialized);
+
 //	new_uninitialized[pointer_array_len(uninitialized)] = arg;
 //	printf("arg %s\n", arg);
 //	printf("uninitialized[] %s\n", new_uninitialized[0]);
 
 //	printf("\n\nenv index: %zu\n\n", env_index);
 //	printf("\n\ncopy len: %zu\n\n", pointer_array_len(copy));
-	if (env_index != pointer_array_len(copy))
-		return (new_uninitialized);
-	while (index < pointer_array_len(uninitialized))
-	{
-		if (!strcmp(arg, new_uninitialized[index]))
-			return (new_uninitialized);
-		index++;
-//		printf("index %zu\n", index);
-	}
 //	if (index == pointer_array_len(uninitialized))
-	new_uninitialized[pointer_array_len(uninitialized)] = arg;
-	return (new_uninitialized);
+	new_uninitialized[pointer_array_len(*uninitialized)] = ft_strdup(arg);
+	free_split(*uninitialized);
+	*uninitialized = new_uninitialized;
 //		substitute_env_str(arg, new_copy, env_index);
 //	printf("string on copy: %s\n", copy[pointer_array_len(copy)]);
 //	printf("string on new: %s\n", new_env_copy[pointer_array_len(copy)]);
@@ -421,6 +425,7 @@ char	**append_uninitialized(char *arg, char **uninitialized)
 //	printf("string on copy - 1: %s\n", copy[pointer_array_len(copy) - 1]);
 //	copy[pointer_array_len(copy)] = arg;
 	new_uninitialized = env_copy(uninitialized);
+	return (new_uninitialized);
 //	new_uninitialized[pointer_array_len(uninitialized)] = arg;
 	printf("arg %s\n", arg);
 	printf("uninitialized[] %s\n", new_uninitialized[0]);
@@ -463,7 +468,8 @@ void	export_buildin(char **argv, char ***env_copy, char ***uninit)
 	{
 		print_export(*env_copy, *uninit);
 //		print_export(env_copy);
-		exit (0);
+		exit_status = EXIT_SUCCESS;
+		return ;
 	}
 	if (is_option(argv[i]))
 		perror_export(is_option(argv[i]));
@@ -480,14 +486,13 @@ void	export_buildin(char **argv, char ***env_copy, char ***uninit)
 		if (strchr(argv[i], '='))
 			*env_copy = append_env(argv[i], *env_copy);
 		else
-			*uninit = append_uninitialized(argv[i], *uninit, *env_copy);
+			append_uninitialized(argv[i], uninit, *env_copy);
 //		printf("after append: %d\n", pointer_array_len(env_copy));
 		i++;
 	}
-	printf("++++++++\n\n");
-	env_print(*env_copy);
-	printf("++++++++\n\n");
-	// env_print(uninitialized);
+	// printf("++++++++\n\n");
+	// env_print(*env_copy);
+	// printf("++++++++\n\n");
 	exit_status = EXIT_SUCCESS;
 }
 

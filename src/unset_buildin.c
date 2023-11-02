@@ -113,6 +113,8 @@ int	pointer_array_len(char **pointers)
 {
 	int	len = 0;
 
+	if (!pointers)
+		return (0);
 	while (pointers[len])
 		len++;	
 //	printf("number of env var: %d\n", len);
@@ -147,17 +149,18 @@ char	**env_copy(char **env)
 	copy[pointer_array_len(env) ] = NULL;
 	copy[pointer_array_len(env)  + 1] = NULL;
 //	key_index = 0;
-	while (env[key_index])
+	while (env && env[key_index])
 	{
-		copy[key_index] = (char *)malloc(sizeof(char) * (ft_strlen(env[key_index]) + 1));
-		if (!copy[key_index])
-			return NULL;
-		copy[key_index][ft_strlen(env[key_index])] = '\0';
-		while (value_index < ft_strlen(env[key_index]))
-		{
-			copy[key_index][value_index] = env[key_index][value_index] ;
-			value_index++;
-		}
+		// copy[key_index] = (char *)malloc(sizeof(char) * (ft_strlen(env[key_index]) + 1));
+		// if (!copy[key_index])
+		// 	return NULL;
+		// copy[key_index][ft_strlen(env[key_index])] = '\0';
+		// while (value_index < ft_strlen(env[key_index]))
+		// {
+		// 	copy[key_index][value_index] = env[key_index][value_index] ;
+		// 	value_index++;
+		// }
+		copy[key_index] = ft_strdup(env[key_index]);
 		value_index = 0;
 		key_index++;	
 	}
