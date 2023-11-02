@@ -3,7 +3,8 @@ NAME_BONUS = minishell_bonus
 
 SRC_LIST = minishell.c constructors.c build_tree.c execute_tree.c free_tree.c \
 			token_list.c pwd_buildin.c echo_buildin.c env_buildin.c \
-			execute_buildin.c unset_buildin.c init_vars.c export_buildin.c
+			execute_buildin.c unset_buildin.c init_vars.c export_buildin.c \
+			cd_buildin.c
 SRC_LIST_BONUS = minishell.c
 
 SRC_DIR = src/
