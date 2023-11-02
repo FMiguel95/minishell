@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/10/30 23:46:27 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/02 22:12:04 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,8 @@ typedef struct s_tnode_redir{
 typedef struct s_tnode_heredoc{
 	int		type;
 	char	*delm;
+	char	*input;
 	t_tnode	*node;
-	int		is_done;
 }			t_tnode_heredoc;
 
 typedef struct s_token{
@@ -89,18 +89,23 @@ void	panic(char *str);
 int		fork1();
 void	handle_sigint(int signal);
 void	wait_signal(void);
-void	execute_node(t_tnode *node, char ***envp, char **uninit);
+
+void	check_heredocs(t_tnode *node);
+void	execute_node(t_tnode *node, char ***envp, char ***uninit);
 void	free_node(t_tnode *node);
 void	print_node(t_tnode *node);
 
-char	**make_token_list(char *input);
+char	*my_getenv(char *var, char **env);
 
-char	**execute_builtin(char **argv, char **env, char **uninit);
+char	**make_token_list(char *input, char **env);
+
+//char	**execute_builtin(char **argv, char **env, char ***uninit);
 void	pwd_buildin(char **argv);
 void	echo_buildin(char **argv);
 void	env_buildin(char **argv, char **env);
 void	unset_buildin(char **argv, char ***env);
 void	export_buildin(char **argv, char ***env, char ***uninit);
+int		cd_buildin(char **argv, char **env_cpy);
 
 void	init_env(char **env);
 
