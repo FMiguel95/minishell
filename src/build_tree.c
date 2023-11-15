@@ -6,67 +6,90 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 19:34:11 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/02 17:39:08 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/13 19:31:33 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-t_tnode	*parse_pipe(char ***tokens)
+static void	get_redir_node(t_tnode **node, char ***tokens,
+		char token_type, int *invalid_syntax)
 {
-	t_tnode	*node;
+	if (get_token_type(**tokens) != 'a')
+	{
+		*invalid_syntax = 1;
+		return ;
+	}
+	if (token_type == '<')
+		*node = construct_redir(*node, **tokens, O_RDONLY, STDIN_FILENO);
+	else if (token_type == '>')
+		*node = construct_redir(*node, **tokens,
+				O_WRONLY | O_CREAT | O_TRUNC, STDOUT_FILENO);
+	else if (token_type == '+')
+		*node = construct_redir(*node, **tokens,
+				O_CREAT | O_WRONLY | O_APPEND, STDOUT_FILENO);
+	else if (token_type == '-')
+		*node = construct_heredoc(*node, **tokens);
+	(*tokens)++;
+}
 
-	node = parse_exec(tokens);
-	if (**tokens != NULL && ft_strcmp(**tokens, "|") == 0)
+static t_tnode	*parse_redir(t_tnode *node, char ***tokens, int *invalid_syntax)
+{
+	char	token_type;
+
+	if (**tokens == NULL)
+		return (node);
+	token_type = get_token_type(**tokens);
+	if (token_type != 'a')
 	{
 		(*tokens)++;
-		node = construct_pipe(node,
-				parse_pipe(tokens));
+		get_redir_node(&node, tokens, token_type, invalid_syntax);
 	}
 	return (node);
 }
 
-t_tnode	*parse_exec(char ***tokens)
+static void	insert_redir_node(char ***tokens, t_tnode **ret_node,
+		t_tnode *exec_node, int *invalid_syntax)
+{
+	t_tnode			*newest_node;
+	static t_tnode	*prev_node;
+
+	if ((*ret_node)->type == EXEC)
+	{
+		*ret_node = parse_redir(exec_node, tokens, invalid_syntax);
+		prev_node = *ret_node;
+		return ;
+	}
+	newest_node = parse_redir(exec_node, tokens, invalid_syntax);
+	if (prev_node->type == REDIR)
+		((t_tnode_redir *)prev_node)->node = newest_node;
+	else if (prev_node->type == HEREDOC)
+		((t_tnode_heredoc *)prev_node)->node = newest_node;
+	prev_node = newest_node;
+	return ;
+}
+
+static t_tnode	*parse_exec(char ***tokens, int *invalid_syntax)
 {
 	int				argc;
 	t_tnode_exec	*node;
-	t_tnode 		*ret_node;
-	t_tnode 		*newest_node;
-	t_tnode 		*prev_node;
-	t_tnode 		*exec_node;
+	t_tnode			*ret_node;
+	t_tnode			*exec_node;
 
 	exec_node = construct_exec();
 	ret_node = exec_node;
-	node = (t_tnode_exec*)ret_node;
-
+	node = (t_tnode_exec *)ret_node;
 	argc = 0;
-	// ret_node = parse_redir(ret_node, tokens);
 	while (**tokens != NULL && ft_strcmp(**tokens, "|") != 0)
 	{
 		if (get_token_type(**tokens) != 'a')
 		{
-			if (ret_node->type == EXEC)
-			{
-				ret_node = parse_redir(exec_node, tokens);
-				prev_node = ret_node;
-				continue ;
-			}
-			newest_node = parse_redir(exec_node, tokens);
-			if (prev_node->type == REDIR)
-				((t_tnode_redir *)prev_node)->node = newest_node;
-			else if (prev_node->type == HEREDOC)
-				((t_tnode_heredoc *)prev_node)->node = newest_node;
-			prev_node = newest_node;
+			insert_redir_node(tokens, &ret_node, exec_node, invalid_syntax);
 			continue ;
 		}
-		// while (**tokens != NULL && get_token_type(**tokens) != 'a' && get_token_type(**tokens) != '|')
-		// 	ret_node = parse_redir(ret_node, tokens);
-		// if (get_token_type(**tokens) != 'a')
-		// 	panic("syntax ??");
 		node->argv[argc] = **tokens;
 		argc++;
 		(*tokens)++;
-		// ret_node = parse_redir(ret_node, tokens);
 	}
 	node->argv[argc] = NULL;
 	node->eargv[argc] = NULL;
@@ -77,7 +100,9 @@ char	get_token_type(char *token)
 {
 	if (!token)
 		return ('\0');
-	if (strcmp(token, "<") == 0)
+	if (strcmp(token, "|") == 0)
+		return ('|');
+	else if (strcmp(token, "<") == 0)
 		return ('<');
 	else if (strcmp(token, ">") == 0)
 		return ('>');
@@ -89,43 +114,37 @@ char	get_token_type(char *token)
 		return ('a');
 }
 
-t_tnode	*parse_redir(t_tnode *node, char ***tokens)
+static t_tnode	*parse_pipe(char ***tokens, int *invalid_syntax)
 {
-	char	token_type;
+	t_tnode	*node;
 
-	if (**tokens == NULL)
-		return (node);
-	token_type = get_token_type(**tokens);
-	if (token_type != 'a')
+	node = parse_exec(tokens, invalid_syntax);
+	if (**tokens != NULL && ft_strcmp(**tokens, "|") == 0)
 	{
 		(*tokens)++;
-		if (get_token_type(**tokens) != 'a')
-			panic("missing file for redirection");
-		if (token_type == '<')
-			node = construct_redir(node, **tokens, O_RDONLY, STDIN_FILENO);
-		else if (token_type == '>')
-			node = construct_redir(node, **tokens, O_WRONLY | O_CREAT | O_TRUNC, STDOUT_FILENO);
-		else if (token_type == '+')
-			node = construct_redir(node, **tokens, O_CREAT | O_WRONLY | O_APPEND, STDOUT_FILENO);
-		else if (token_type == '-')
-			node = construct_heredoc(node, **tokens);
-		(*tokens)++;
+		if (**tokens == NULL)
+			*invalid_syntax = 1;
+		node = construct_pipe(node,
+				parse_pipe(tokens, invalid_syntax));
 	}
 	return (node);
 }
 
-t_tnode *build_tree(char **tokens)
+t_tnode	*build_tree(char **tokens, int *exit_status)
 {
 	t_tnode	*node;
+	int		invalid_syntax;
 
-	// creates the tree and returns the root node
-	node = parse_pipe(&tokens);
-	// checks if the whole input was analysed
-	// if not then it prints whats left and calls panic
-	if(*tokens != NULL){
-		printf("leftovers:\n");
-		print_list(tokens);
-		panic("syntax");
+	invalid_syntax = 0;
+	if (get_token_type(*tokens) == '|')
+		invalid_syntax = 1;
+	node = parse_pipe(&tokens, &invalid_syntax);
+	if (invalid_syntax)
+	{
+		ft_putendl_fd("bad syntax", STDERR_FILENO);
+		free_node(node);
+		*exit_status = 2;
+		return (NULL);
 	}
 	return (node);
 }

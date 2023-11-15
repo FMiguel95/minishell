@@ -6,12 +6,11 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 18:55:28 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/02 17:02:07 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/13 23:19:15 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
 
 t_tnode	*construct_exec(void)
 {
