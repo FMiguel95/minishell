@@ -1,28 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   free_data.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/09 23:12:13 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/16 21:06:38 by fernacar         ###   ########.fr       */
+/*   Created: 2023/11/16 20:44:55 by fernacar          #+#    #+#             */
+/*   Updated: 2023/11/16 20:45:07 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	handle_sigint(int signal)
+void	free_commands(t_minishell *data)
 {
-	signal = 0;
-	rl_replace_line("", 0);
-	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_redisplay();
+	if (data->token_list)
+	{
+		free_split(data->token_list);
+		data->token_list = NULL;
+	}
+	if (data->tree_root)
+	{
+		free_node(data->tree_root);
+		data->tree_root = NULL;
+	}
 }
 
-void	wait_signal(void)
+void	free_data(t_minishell *data)
 {
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, SIG_IGN);
+	free_commands(data);
+	if (data->env)
+	{
+		free_split(data->env);
+		data->env = NULL;
+	}
+	if (data->uninit)
+	{
+		free_split(data->uninit);
+		data->uninit = NULL;
+	}
 }

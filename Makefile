@@ -1,10 +1,32 @@
 NAME = minishell
 NAME_BONUS = minishell_bonus
 
-SRC_LIST = minishell.c constructors.c build_tree.c execute_tree.c free_tree.c \
-			token_list.c echo_env_pwd_buildin.c \
-			unset_buildin.c export_buildin.c exit_buildin.c \
-			cd_buildin.c utils_init.c errors.c var_utils.c export_print.c signals.c
+SRC_LIST =  build_tree_utils.c \
+			build_tree.c \
+			cd_buildin.c \
+			check_heredocs.c \
+			constructors.c \
+			echo_env_pwd_buildin.c \
+			errors.c \
+			execute_node_exec.c \
+			execute_node_pipe.c \
+			execute_tree.c \
+			exit_buildin.c \
+			expand_token_var.c \
+			export_buildin.c \
+			export_print.c \
+			fill_token_list.c \
+			free_data.c \
+			free_tree.c \
+			handle_tokens.c \
+			minishell_utils.c \
+			minishell.c \
+			signals.c \
+			token_list.c \
+			unset_buildin.c \
+			utils_init.c \
+			var_utils.c \
+
 SRC_LIST_BONUS = minishell.c
 
 SRC_DIR = src/
@@ -21,7 +43,7 @@ LIBFT_DIR = libft/
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
 CC = cc
-CFLAGS = -g -fsanitize=address #-Wall -Werror -Wextra 
+CFLAGS = -g -fsanitize=address -Wall -Werror -Wextra
 RM = rm -rf
 
 all: $(NAME)

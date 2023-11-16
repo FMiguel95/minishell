@@ -6,58 +6,13 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/15 00:14:38 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/16 21:20:01 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	panic(char *str)
-{
-	ft_putendl_fd(str, STDERR_FILENO);
-	exit(1);
-}
-
-int	fork1(void)
-{
-	int	pid;
-
-	pid = fork();
-	if (pid == -1)
-		panic("fork");
-	return (pid);
-}
-
-void	free_commands(t_minishell *data)
-{
-	if (data->token_list)
-	{
-		free_split(data->token_list);
-		data->token_list = NULL;
-	}
-	if (data->tree_root)
-	{
-		free_node(data->tree_root);
-		data->tree_root = NULL;
-	}
-}
-
-void	free_data(t_minishell *data)
-{
-	free_commands(data);
-	if (data->env)
-	{
-		free_split(data->env);
-		data->env = NULL;
-	}
-	if (data->uninit)
-	{
-		free_split(data->uninit);
-		data->uninit = NULL;
-	}
-}
-
-static int	prompt_stuff(char **input)
+static int	get_prompt(char **input)
 {
 	*input = NULL;
 	while (1)
@@ -75,7 +30,7 @@ static int	prompt_stuff(char **input)
 	}
 }
 
-void	parent_buildins(t_minishell *d)
+static void	parent_buildins(t_minishell *d)
 {
 	if (d->tree_root->type == EXEC
 		&& (ft_strcmp(((t_tnode_exec *)d->tree_root)->argv[0], "unset") == 0 
@@ -102,7 +57,7 @@ void	parent_buildins(t_minishell *d)
 	}
 }
 
-void	run_prompt(char *input, t_minishell *data)
+static void	run_prompt(char *input, t_minishell *data)
 {
 	int		pid;
 
@@ -132,20 +87,20 @@ void	run_prompt(char *input, t_minishell *data)
 
 // check if exit status is correct everywhere
 
-// export and unset : gives error message twice
-
 int	main(int ac, char **av, char **envp)
 {
 	char		*input;
 	t_minishell	data;
 
+	(void) ac;
+	(void) av;
 	data = (t_minishell){0};
 	data.env = env_copy(envp);
 	init_env(data.env);
 	wait_signal();
 	while (1)
 	{
-		if (!prompt_stuff(&input))
+		if (!get_prompt(&input))
 			break ;
 		run_prompt(input, &data);
 	}

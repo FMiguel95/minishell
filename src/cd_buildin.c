@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 17:22:03 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/14 23:51:31 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/16 21:03:33 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static void	change_old(char ***env_cpy, int *exit_status)
 	}
 }
 
-static void	change_others(char *argv, char ***env_cpy, int *exit_status)
+static void	change_others(char *argv, int *exit_status)
 {
 	char	str[PATH_MAX];
 
@@ -90,8 +90,6 @@ static void	change_others(char *argv, char ***env_cpy, int *exit_status)
 
 int	cd_buildin(char **argv, char ***env_cpy, int *exit_status)
 {
-	char	str[PATH_MAX];
-
 	*exit_status = EXIT_SUCCESS;
 	if ((ft_argc(argv) == 2) && !argv[1][0])
 		*exit_status = 0;
@@ -104,7 +102,7 @@ int	cd_buildin(char **argv, char ***env_cpy, int *exit_status)
 	else if (!strcmp(argv[1], "-"))
 		change_old(env_cpy, exit_status);
 	else
-		change_others(argv[1], env_cpy, exit_status);
+		change_others(argv[1], exit_status);
 	update_env(*env_cpy);
 	return (*exit_status);
 }

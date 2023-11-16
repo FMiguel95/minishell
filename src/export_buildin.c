@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/12 17:10:44 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/15 00:11:07 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/16 21:04:19 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,6 @@ static void	append_uninitialized(char *arg, char ***uninitialized, char **copy)
 {
 	char	**new_uninitialized;
 	size_t	index;
-	size_t	key_len;
-	size_t	env_index;
 
 	index = 0;
 	if (my_getenv(arg, copy) != NULL)
