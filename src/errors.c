@@ -57,5 +57,5 @@ int	perror_cd(int *exit_status)
 {
 	ft_putendl_fd("minishell: cd: too many arguments", 2);
 	*exit_status = 1;
-	exit (*exit_status);
+	return (*exit_status);
 }

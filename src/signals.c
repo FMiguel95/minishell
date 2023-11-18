@@ -14,11 +14,14 @@
 
 void	handle_sigint(int signal)
 {
-	signal = 0;
-	rl_replace_line("", 0);
-	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_redisplay();
+	if (signal == SIGINT)
+	{
+//		write(1, "\n", 1);
+		rl_replace_line("", 0);
+		rl_on_new_line();
+		rl_redisplay();
+	}
+//	*exit_status = 130;
 }
 
 void	wait_signal(void)

@@ -84,10 +84,8 @@ char	**env_copy(char **env)
 {
 	char	**copy;
 	size_t	key_index;
-	size_t	value_index;
 
 	key_index = 0;
-	value_index = 0;
 	copy = (char **)malloc(sizeof(char *) * (pointer_array_len(env) + 2));
 	if (!copy)
 		return (NULL);
@@ -96,7 +94,6 @@ char	**env_copy(char **env)
 	while (env && env[key_index])
 	{
 		copy[key_index] = ft_strdup(env[key_index]);
-		value_index = 0;
 		key_index++;
 	}
 	return (copy);

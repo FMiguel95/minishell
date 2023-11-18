@@ -62,7 +62,7 @@ int	key_alnum_under(char *s, size_t index)
 	size_t	i;
 
 	i = 0;
-	while (i < index)
+	while (i < index || s[i] == ' ')
 	{
 		if (!((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z') \
 			|| (s[i] >= '0' && s[i] <= '9') || s[i] == '_' || s[i] == '='))

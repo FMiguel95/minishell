@@ -80,7 +80,7 @@ static void	change_others(char *argv, int *exit_status)
 	char	str[PATH_MAX];
 
 	*exit_status = chdir(argv);
-	if (exit_status)
+	if (*exit_status)
 	{
 		perror(argv);
 		*exit_status = 1;

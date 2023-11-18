@@ -79,10 +79,6 @@ void	unset_buildin(char **arg, char ***copy, char ***uninit,
 	{
 		while (arg && arg[i])
 		{
-			if (!key_alnum_under(arg[i], key_length(arg[i])) \
-				|| ft_isdigit(*arg[i]) || !arg[i][0]
-				|| !key_length(arg[i]))
-				perror_identifier(arg[0], arg[i], exit_status);
 			if (!ft_strcmp(arg[i], "_"))
 				;
 			else

@@ -82,6 +82,5 @@ fclean: clean
 re: fclean all
 
 norm:
-	norminette -R CheckForbiddenSourceHeader include/*.h
-	norminette $(SRC)
-	norminette $(SRC_BONUS)
+	norminette -R CheckForbiddenSourceHeader include/
+	norminette $(SRC_DIR)

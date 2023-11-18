@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/16 22:29:45 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/18 19:43:48 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int		is_delimiter(char c);
 char	**make_token_list(char *input, char **env, int exit_status);
 
 // exit
-void	exit_buildin(char **argv, int exit_status);
+void	exit_buildin(char **argv, int *exit_status);
 
 //	errors
 int		ft_perror(char *str, char letter, int *exit_status);
