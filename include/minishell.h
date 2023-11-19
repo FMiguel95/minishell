@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/18 19:43:48 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:49:08 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,9 @@ typedef struct s_minishell
 }			t_minishell;
 
 // signals
-void	handle_sigint(int signal);
-void	wait_signal(void);
+void	wait_signal_main(void);
+void	wait_signal_child(void);
+void	wait_signal_heredoc(void);
 
 // constructors
 t_tnode	*construct_exec(void);

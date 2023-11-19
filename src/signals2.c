@@ -1,42 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_data.c                                        :+:      :+:    :+:   */
+/*   signals2.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/16 20:44:55 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 22:36:46 by fernacar         ###   ########.fr       */
+/*   Created: 2023/11/19 21:03:29 by fernacar          #+#    #+#             */
+/*   Updated: 2023/11/19 21:15:12 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	free_commands(t_minishell *data)
+static void	handle_sigint_heredoc(int sig)
 {
-	if (data->token_list)
+	if (sig == SIGINT)
 	{
-		free_split(data->token_list);
-		data->token_list = NULL;
-	}
-	if (data->tree_root)
-	{
-		free_node(data->tree_root);
-		data->tree_root = NULL;
+		printf("\n");
+		exit(130);
+		return ;
 	}
 }
 
-void	free_data(t_minishell *data)
+void	wait_signal_heredoc(void)
 {
-	free_commands(data);
-	if (data->env)
-	{
-		free_split(data->env);
-		data->env = NULL;
-	}
-	if (data->uninit)
-	{
-		free_split(data->uninit);
-		data->uninit = NULL;
-	}
+	signal(SIGINT, handle_sigint_heredoc);
+	signal(SIGQUIT, SIG_IGN);
 }

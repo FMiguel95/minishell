@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/16 22:26:40 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 21:28:23 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,18 +32,17 @@ void	execute_node_redir(t_tnode_redir *redir_node, t_minishell *data)
 
 void	execute_node_heredoc(t_tnode_heredoc *heredoc_node, t_minishell *data)
 {
-	int	fd;
+	int	p[2];
 
-	fd = open(".heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0600);
-	write(fd, heredoc_node->input, ft_strlen(heredoc_node->input));
-	close(fd);
-	fd = open(".heredoc", O_RDONLY, 0400);
-	if (dup2(fd, STDIN_FILENO) == -1)
+	if (pipe(p) < 0)
+		panic("pipe error");
+	write(p[1], heredoc_node->input, ft_strlen(heredoc_node->input));
+	close(p[1]);
+	if (dup2(p[0], STDIN_FILENO) == -1)
 		panic("dup2 error");
-	close(fd);
+	close(p[0]);
 	if (heredoc_node->node)
 		execute_node(heredoc_node->node, data);
-	unlink(".heredoc");
 }
 
 void	execute_node(t_tnode *node, t_minishell *data)

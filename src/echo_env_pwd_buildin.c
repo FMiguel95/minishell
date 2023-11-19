@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 16:19:52 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/14 23:48:19 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:21:58 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,9 @@ void	echo_buildin(char **argv, int *exit_status)
 
 void	env_buildin(char **argv, char **env_copy, int *exit_status)
 {
-	int		i;
-	char	*env_var;
+	char	**env_var;
 
-	i = 0;
-	env_var = env_copy[0];
+	env_var = env_copy;
 	*exit_status = EXIT_SUCCESS;
 	if (argv[0] && argv[1])
 	{
@@ -53,11 +51,10 @@ void	env_buildin(char **argv, char **env_copy, int *exit_status)
 		*exit_status = 2;
 		exit(*exit_status);
 	}
-	while (env_var)
+	while (env_var && *env_var)
 	{
-		printf("%s\n", env_var);
-		i++;
-		env_var = env_copy[i];
+		printf("%s\n", *env_var);
+		env_var++;
 	}
 	exit(*exit_status);
 }

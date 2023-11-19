@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:33 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/18 20:10:57 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:49:20 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,10 @@ static t_tnode	*get_exec_node(t_tnode *tree_root)
 		res = tree_root;
 		while (res && res->type != EXEC)
 		{
-			res = ((t_tnode_redir *)res)->node;
+			if (res->type == REDIR)
+				res = ((t_tnode_redir *)res)->node;
+			else if (res->type == HEREDOC)
+				res = ((t_tnode_heredoc *)res)->node; 
 		}
 	}
 	return (res);
@@ -48,7 +51,7 @@ static t_tnode	*get_exec_node(t_tnode *tree_root)
 
 static void	parent_buildins(t_tnode_exec *exec_node, t_minishell *d)
 {
-	if (exec_node
+	if (exec_node && exec_node->argv[0]
 		&& (ft_strcmp(exec_node->argv[0], "unset") == 0 
 			|| (ft_strcmp(exec_node->argv[0], "export") == 0
 				&& exec_node->argv[1] != NULL)
@@ -80,15 +83,18 @@ static void	run_prompt(char *input, t_minishell *data)
 		pid = fork1();
 		if (pid == 0)
 		{
+			wait_signal_heredoc();
 			check_heredocs(data->tree_root, data);
+			wait_signal_child();
 			execute_node(data->tree_root, data);
 			free(input);
 			free_data(data);
 			exit(data->exit_status);
 		}
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
 		waitpid(pid, &data->exit_status, 0);
 		data->exit_status = WEXITSTATUS(data->exit_status);
-		unlink(".heredoc");
 	}
 	free_commands(data);
 	free(input);
@@ -108,9 +114,9 @@ int	main(int ac, char **av, char **envp)
 	data = (t_minishell){0};
 	data.env = env_copy(envp);
 	init_env(data.env);
-	wait_signal();
 	while (1)
 	{
+		wait_signal_main();
 		if (!get_prompt(&input))
 			break ;
 		run_prompt(input, &data);

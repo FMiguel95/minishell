@@ -21,7 +21,8 @@ SRC_LIST =  build_tree_utils.c \
 			handle_tokens.c \
 			minishell_utils.c \
 			minishell.c \
-			signals.c \
+			signals1.c \
+			signals2.c \
 			token_list.c \
 			unset_buildin.c \
 			utils_init.c \
@@ -43,7 +44,7 @@ LIBFT_DIR = libft/
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
 CC = cc
-CFLAGS = -g -fsanitize=address -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -g -fsanitize=address 
 RM = rm -rf
 
 all: $(NAME)

@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 20:30:14 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/14 23:41:35 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:38:57 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,11 +86,12 @@ char	**env_copy(char **env)
 	size_t	key_index;
 
 	key_index = 0;
-	copy = (char **)malloc(sizeof(char *) * (pointer_array_len(env) + 2));
+	copy = (char **)malloc(sizeof(char *) * (pointer_array_len(env) + 3));
 	if (!copy)
 		return (NULL);
 	copy[pointer_array_len(env)] = NULL;
 	copy[pointer_array_len(env) + 1] = NULL;
+	copy[pointer_array_len(env) + 2] = NULL;
 	while (env && env[key_index])
 	{
 		copy[key_index] = ft_strdup(env[key_index]);

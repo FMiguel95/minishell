@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 16:50:22 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/14 23:46:09 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:56:42 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void	remove_env(char *argv, char ***copy, int key_index)
 		env_index++;
 	}
 	free(temp);
-	copy[env_index] = NULL;
 	(*copy)[env_index] = NULL;
 	new_copy = env_copy(*copy);
 	free_split(*copy);
@@ -41,9 +40,9 @@ void	remove_uninit(char *argv, char ***uninit)
 	size_t	index;
 	char	**new_uninit;
 
-	index = 0;
 	if (!*uninit)
 		return ;
+	index = 0;
 	while ((*uninit)[index] && ft_strcmp(argv, (*uninit)[index]))
 		index++;
 	if (index == pointer_array_len(*uninit))
@@ -64,29 +63,26 @@ void	remove_uninit(char *argv, char ***uninit)
 	}
 }
 
-void	unset_buildin(char **arg, char ***copy, char ***uninit,
-		int *exit_status)
+void	unset_buildin(char **argv, char ***copy, char ***uninit,
+			int *exit_status)
 {
 	int	i; 
 
-	i = 1;
-	*exit_status = EXIT_SUCCESS;
-	if (!arg[1])
-		*exit_status = EXIT_SUCCESS;
-	else if (is_option(arg[i]))
-		perror_option_identifier(arg[i - 1], arg[i], exit_status);
-	else
+	i = 1; 
+	if (!argv[1])
+		return ;
+	if (is_option(argv[i]))
+		ft_perror(argv[i -1], is_option(argv[i]), exit_status);
+	while (argv && argv[i])
 	{
-		while (arg && arg[i])
+		if (!ft_strcmp(argv[i], "_"))
+			;
+		else
 		{
-			if (!ft_strcmp(arg[i], "_"))
-				;
-			else
-			{
-				remove_env(arg[i], copy, ft_strlen(arg[i]));
-				remove_uninit(arg[i], uninit);
-			}
-			i++;
+			remove_env(argv[i], copy, ft_strlen(argv[i]));
+			remove_uninit(argv[i], uninit);
 		}
+		i++;
 	}
+	exit_status = EXIT_SUCCESS;
 }

@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 22:00:49 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/16 22:25:00 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/19 23:49:36 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ static void	execute_command(char **args, t_minishell *data)
 
 void	execute_node_exec(t_tnode_exec *exec_node, t_minishell *data)
 {
-	if (exec_node->argv[0] == 0)
-		exit(1);
-	execute_command(exec_node->argv, data);
+	if (!(exec_node->argv[0] == 0))
+		execute_command(exec_node->argv, data);
 }
