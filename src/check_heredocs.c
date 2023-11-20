@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 21:52:53 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 18:57:53 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:16:24 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	check_heredocs(t_tnode *node, t_minishell *data)
 	}
 	else if (node && node->type == HEREDOC)
 	{
-		get_heredoc((t_tnode_heredoc *)node, data->env, data->exit_status);
+		get_heredoc((t_tnode_heredoc *)node, data->env, *data->exit_status);
 		check_heredocs(((t_tnode_heredoc *)node)->node, data);
 	}
 }

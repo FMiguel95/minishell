@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 16:19:52 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/19 23:21:58 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 21:35:27 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	pwd_buildin(char **argv, int *exit_status)
 	int		i;
 
 	i = 1;
-	if (is_option(argv[i]))
+	if (is_option(argv[i]) > 0)
 		ft_perror(argv[i - 1], is_option(argv[i]), exit_status);
 	else if (getcwd(curr_work_dir, PATH_MAX) == NULL)
 	{

@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 21:03:29 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 21:15:12 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:25:20 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ static void	handle_sigint_heredoc(int sig)
 	{
 		printf("\n");
 		exit(130);
-		return ;
 	}
 }
 

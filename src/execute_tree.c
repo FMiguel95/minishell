@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:36:37 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 21:28:23 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:18:53 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ void	execute_node_redir(t_tnode_redir *redir_node, t_minishell *data)
 	if (new_fd < 0)
 	{
 		perror(redir_node->file);
-		data->exit_status = 1;
-		exit(data->exit_status);
+		*data->exit_status = 1;
+		exit(*data->exit_status);
 	}
 	if (dup2(new_fd, redir_node->fd) == -1)
 		panic("dup2 error");

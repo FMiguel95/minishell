@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 21:28:42 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 19:13:18 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:44:04 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,13 @@ int	do_single_quotes(char *token, char	**expanded_token, int *i)
 			free(temp);
 			*i = *i + 1;
 		}
-		temp = *expanded_token;
-		*expanded_token = ft_strjoin(temp, (char [2]){token[*i], '\0'});
-		free(temp);
+		if (token[*i])
+		{
+			temp = *expanded_token;
+			*expanded_token = ft_strjoin(temp, (char [2]){token[*i], '\0'});
+			free(temp);
+			*i = *i + 1;
+		}
 		return (1);
 	}
 	return (0);

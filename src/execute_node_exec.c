@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 22:00:49 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 23:49:36 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:17:53 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@ static int	child_buildins(char **args, t_minishell *data)
 		|| !ft_strcmp(args[0], "exit"))
 	{
 		if (!ft_strcmp(args[0], "echo"))
-			echo_buildin(args, &data->exit_status);
+			echo_buildin(args, data->exit_status);
 		else if (!ft_strcmp(args[0], "env"))
-			env_buildin(args, data->env, &data->exit_status);
+			env_buildin(args, data->env, data->exit_status);
 		else if (!ft_strcmp(args[0], "pwd"))
-			pwd_buildin(args, &data->exit_status);
+			pwd_buildin(args, data->exit_status);
 		else if (!ft_strcmp(args[0], "export") && !args[1])
-			export_buildin(args, &data->env, &data->uninit, &data->exit_status);
+			export_buildin(args, &data->env, &data->uninit, data->exit_status);
 		else if (!ft_strcmp(args[0], "unset") && !args[1])
-			unset_buildin(args, &data->env, &data->uninit, &data->exit_status);
+			unset_buildin(args, &data->env, &data->uninit, data->exit_status);
 		return (1);
 	}
 	return (0);
@@ -106,8 +106,8 @@ static void	execute_command(char **args, t_minishell *data)
 			free_split(args);
 			exit(126);
 		}
-		waitpid(0, &data->exit_status, 0);
-		data->exit_status = WEXITSTATUS(data->exit_status);
+		waitpid(0, data->exit_status, 0);
+		*data->exit_status = WEXITSTATUS(*data->exit_status);
 		free(full_path);
 	}
 }

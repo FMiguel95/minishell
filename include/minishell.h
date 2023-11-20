@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:55:43 by fernacar          #+#    #+#             */
-/*   Updated: 2023/11/19 23:49:08 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 21:24:41 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
 # define REDIR		2
 # define PIPE		3
 # define HEREDOC	4
+
+extern int	g_exit;
 
 typedef struct s_tnode{
 	int				type;
@@ -82,13 +84,14 @@ typedef struct s_minishell
 	char	**uninit;
 	char	**token_list;
 	t_tnode	*tree_root;
-	int		exit_status;
+	int		*exit_status;
 }			t_minishell;
 
 // signals
 void	wait_signal_main(void);
 void	wait_signal_child(void);
 void	wait_signal_heredoc(void);
+void	main_wait_signals(void);
 
 // constructors
 t_tnode	*construct_exec(void);

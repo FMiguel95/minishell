@@ -6,7 +6,7 @@
 /*   By: fernacar <fernacar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 16:50:22 by aamaral-          #+#    #+#             */
-/*   Updated: 2023/11/19 23:56:42 by fernacar         ###   ########.fr       */
+/*   Updated: 2023/11/20 22:18:17 by fernacar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,13 +68,20 @@ void	unset_buildin(char **argv, char ***copy, char ***uninit,
 {
 	int	i; 
 
-	i = 1; 
+	*exit_status = EXIT_SUCCESS;
+	i = 1;
 	if (!argv[1])
 		return ;
 	if (is_option(argv[i]))
-		ft_perror(argv[i -1], is_option(argv[i]), exit_status);
-	while (argv && argv[i])
+		perror_option_identifier(argv[i - 1], argv[i], exit_status);
+	while (argv && argv[i] && is_option(argv[1]) == 0)
 	{
+		if (!(ft_isalpha(argv[i][0]) || argv[i][0] == '_'))
+		{
+			perror_identifier(argv[0], argv[i], exit_status);
+			i++;
+			continue ;
+		}
 		if (!ft_strcmp(argv[i], "_"))
 			;
 		else
@@ -84,5 +91,4 @@ void	unset_buildin(char **argv, char ***copy, char ***uninit,
 		}
 		i++;
 	}
-	exit_status = EXIT_SUCCESS;
 }
